@@ -322,6 +322,17 @@ namespace M12
         {
             Errors err = Errors.ERR_NONE;
 
+            // check arguments
+            if (LowSpeed > 100)
+                LowSpeed = 100;
+            else if (LowSpeed == 0)
+                LowSpeed = 1;
+
+            if (HighSpeed > 100)
+                HighSpeed = 100;
+            else if (HighSpeed == 0)
+                HighSpeed = 1;
+
             lock (lockController)
             {
                 Send(new CommandHome(UnitID, Acc, LowSpeed, HighSpeed));
@@ -354,6 +365,12 @@ namespace M12
         public void Move(UnitID UnitID, int Steps, byte Speed)
         {
             Errors err = Errors.ERR_NONE;
+
+            // check arguments
+            if (Speed > 100)
+                Speed = 100;
+            else if (Speed == 0)
+                Speed = 1;
 
             lock (lockController)
             {
@@ -388,6 +405,12 @@ namespace M12
         public void MoveTriggerADC(UnitID UnitID, int Steps, byte Speed, ushort TriggerInterval)
         {
             Errors err = Errors.ERR_NONE;
+
+            // check arguments
+            if (Speed > 100)
+                Speed = 100;
+            else if (Speed == 0)
+                Speed = 1;
 
             lock (lockController)
             {
