@@ -306,7 +306,7 @@ namespace M12.Tests
                 BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 100, 1, 1, 20);
                 BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 1000, 10, 10, 50);
 
-                controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH1, out List<Point3D> Results);
+                controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH1 | ADCChannels.CH2, out List<Point3D> Results);
 
                 controller.Close();
 

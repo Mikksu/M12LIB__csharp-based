@@ -92,5 +92,20 @@ namespace M12.Definitions
         public const ushort MAX_ACC_STEPS = 3000;
 
         public const int MAX_UNIT_SUPPORT = 12;
+
+
+        /// <summary>
+        /// Calculate how many "1"s in the specified number.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        public static int NumberOfSetBits(int i)
+        {
+            // Java: use >>> instead of >>
+            // C or C++: use uint32_t
+            i = i - ((i >> 1) & 0x55555555);
+            i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
+            return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+        }
     }
 }

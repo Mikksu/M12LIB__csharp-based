@@ -486,6 +486,9 @@ namespace M12
             //! The memory is cleared automatically, you don't have to clear it manually.
 
             // check argments.
+            if(GlobalDefinition.NumberOfSetBits((int)AdcUsed) != 1)
+                throw new ArgumentException($"specify ONLY one channel of the ADC to capture the analog signal.");
+
             if (HorizontalArgs.Gap < HorizontalArgs.Interval)
                 throw new ArgumentException($"the trigger interval of {HorizontalArgs.Unit} shoud be less than the value of the gap.");
 
