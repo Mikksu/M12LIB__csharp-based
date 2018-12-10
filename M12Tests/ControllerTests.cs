@@ -278,7 +278,7 @@ namespace M12.Tests
 
                 controller.Home(TestUnit1);
 
-                controller.StartFast1D(TestUnit1, 10, 1, 20, ADCChannels.CH3, out List<Point2D> values);
+                controller.StartFast1D(TestUnit1, 1000, 5, 20, ADCChannels.CH3, out List<Point2D> values);
 
                 TestContext.WriteLine($"{values.Count} values read.");
 
@@ -303,10 +303,10 @@ namespace M12.Tests
 
                 controller.Move(TestUnit2, 5000, 20);
 
-                BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 100, 1, 1, 20);
-                BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 1000, 10, 10, 50);
+                BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 100, 1, 1, 50);
+                BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 1000, 10, 10, 100);
 
-                controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH1 | ADCChannels.CH2, out List<Point3D> Results);
+                controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH1, out List<Point3D> Results);
 
                 controller.Close();
 

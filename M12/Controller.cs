@@ -466,6 +466,13 @@ namespace M12
 
         #region Alignment
 
+        public void StartFast1D(UnitID Unit, int Range, ushort Interval, byte Speed, ADCChannels AnalogCapture, out List<Point2D> ScanResults)
+        {
+            List<Point2D> fakeList = null;
+
+            StartFast1D(Unit, Range, Interval, Speed, AnalogCapture, out ScanResults, 0, out fakeList);
+        }
+
         /// <summary>
         /// Perform the fast-1D alignment.
         /// </summary>
@@ -473,25 +480,56 @@ namespace M12
         /// <param name="Range"></param>
         /// <param name="Interval"></param>
         /// <param name="Speed"></param>
-        /// <param name="AdcUsed"></param>
+        /// <param name="AnalogCapture"></param>
         /// <param name="ScanResults"></param>
-        public void StartFast1D(UnitID Unit, int Range, ushort Interval, byte Speed, ADCChannels AdcUsed, out List<Point2D> ScanResults)
+        public void StartFast1D(UnitID Unit, int Range, ushort Interval, byte Speed, ADCChannels AnalogCapture, out List<Point2D> ScanResults, ADCChannels AnalogCapture2, out List<Point2D> ScanResults2)
         {
+            if(GlobalDefinition.NumberOfSetBits((int)AnalogCapture) != 1) 
+                throw new ArgumentException($"specify ONLY one channel allowed for the analog capture.");
+
+            if(GlobalDefinition.NumberOfSetBits((int)AnalogCapture2) > 1)
+                throw new ArgumentException($"specify ONLY one channel allowed for the analog capture 2, or disable it.");
+
             ScanResults = new List<Point2D>();
 
-            ConfigADCTrigger(AdcUsed);
+            ScanResults2 = null;
+            if(AnalogCapture2 != 0)
+                ScanResults2 = new List<Point2D>();
+
+            ConfigADCTrigger(AnalogCapture);
             ClearMemory();
 
             MoveTriggerADC(Unit, Range, Speed, Interval);
 
             // read sampling points from the memory.
-            var values = ReadMemoryAll();
+            var adcValues = ReadMemoryAll();
 
-            for(int i = 0; i < values.Count; i++)
-            { 
-                ScanResults.Add(new Point2D(i * Interval, values[i]));
+            int x = 0;
+            int indexOfAdcValues = 0;
+
+            while (true)
+            {
+                if (indexOfAdcValues > (adcValues.Count - 1))
+                    ScanResults.Add(new Point2D(x, 0));
+                else
+                    ScanResults.Add(new Point2D(x, adcValues[indexOfAdcValues++]));
+
+                if (AnalogCapture2 != 0)
+                {
+                    if (indexOfAdcValues > (adcValues.Count - 1))
+                        ScanResults2.Add(new Point2D(x, 0));
+                    else
+                        ScanResults2.Add(new Point2D(x, adcValues[indexOfAdcValues++]));
+                }
+
+                x += Interval;
+
+                if (Math.Abs(x) >= Math.Abs(Range))
+                {
+                    break;
+                }
             }
-
+            
             // ran too fast, some ADC value missed.
             if (ScanResults.Count * Interval < Range)
                 throw new ADCSamplingPointMissException((int)Math.Ceiling((decimal)Range / Interval),  ScanResults.Count);
@@ -623,6 +661,7 @@ namespace M12
 
                 }
 
+                // output debug data.
                 StringBuilder sb = new StringBuilder();
                 foreach(var point in ScanResults)
                 {
