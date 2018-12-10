@@ -278,7 +278,7 @@ namespace M12.Tests
 
                 controller.Home(TestUnit1);
 
-                controller.StartFast1D(TestUnit1, 1000, 5, 20, ADCChannels.CH3, out List<Point2D> values);
+                controller.StartFast1D(TestUnit1, 1000, 5, 20, ADCChannels.CH3, out List<Point2D> values, ADCChannels.CH4, out List<Point2D> values2);
 
                 TestContext.WriteLine($"{values.Count} values read.");
 

@@ -496,7 +496,9 @@ namespace M12
             if(AnalogCapture2 != 0)
                 ScanResults2 = new List<Point2D>();
 
-            ConfigADCTrigger(AnalogCapture);
+
+            ConfigADCTrigger(AnalogCapture | AnalogCapture2);
+
             ClearMemory();
 
             MoveTriggerADC(Unit, Range, Speed, Interval);
