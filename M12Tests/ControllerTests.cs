@@ -14,7 +14,7 @@ namespace M12.Tests
     [TestFixture()]
     public class ControllerTests
     {
-        const string PORT_NAME = "COM4";
+        const string PORT_NAME = "COM20";
         const int BAUDRATE = 115200;
         const UnitID TestUnit1 = UnitID.U1;
         const UnitID TestUnit2 = UnitID.U2;
