@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M12", "M12\M12.csproj", "{0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M12Tests", "M12Tests\M12Tests.csproj", "{62BD8C4D-68EB-414F-BA84-366FB4A438D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M12_GUI", "M12_GUI\M12_GUI.csproj", "{AB0BF3FF-116F-433E-8D05-A16385BFE2B4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{62BD8C4D-68EB-414F-BA84-366FB4A438D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62BD8C4D-68EB-414F-BA84-366FB4A438D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62BD8C4D-68EB-414F-BA84-366FB4A438D4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AB0BF3FF-116F-433E-8D05-A16385BFE2B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB0BF3FF-116F-433E-8D05-A16385BFE2B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB0BF3FF-116F-433E-8D05-A16385BFE2B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB0BF3FF-116F-433E-8D05-A16385BFE2B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
