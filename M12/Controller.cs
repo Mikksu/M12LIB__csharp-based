@@ -26,7 +26,7 @@ namespace M12
         /// <summary>
         /// The timeout value of the read method in millisecond.
         /// </summary>
-        const int DEFAULT_READ_TIMEOUT = 1000;
+        const int DEFAULT_READ_TIMEOUT = 5000;
 
         /// <summary> 
         /// The timeout value of the wait method of the long-duration-operation in millisecond such as home, move.
@@ -868,7 +868,7 @@ namespace M12
                 if (state.IsBusy == false)
                     break;
 
-                if ((curr_time - startTime).TotalMilliseconds > DEFAULT_WAIT_BUSY_TIMEOUT)
+                if ((curr_time - startTime).TotalMilliseconds > Timeout)
                     throw new TimeoutException("it's timeout to wait the long-duration-operation.");
 
                 Thread.Sleep(LoopInterval);

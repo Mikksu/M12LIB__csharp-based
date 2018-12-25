@@ -1,13 +1,12 @@
-﻿using M12;
-using System.Threading;
-using NUnit.Framework;
-using M12.Base;
-using M12.Definitions;
-using System.Collections.Generic;
-using static M12.Base.UnitSettings;
-using System.Threading.Tasks;
-using System;
+﻿using M12.Base;
 using M12.Commands.Alignment;
+using M12.Definitions;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using static M12.Base.UnitSettings;
 
 namespace M12.Tests
 {
@@ -16,7 +15,7 @@ namespace M12.Tests
     {
         const string PORT_NAME = "COM21";
         const int BAUDRATE = 115200;
-        const UnitID TestUnit1 = UnitID.U3;
+        const UnitID TestUnit1 = UnitID.U11;
         const UnitID TestUnit2 = UnitID.U2;
 
         const CSSCH TestCSS = CSSCH.CH2;
@@ -90,7 +89,7 @@ namespace M12.Tests
             using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
             {
                 controller.Open();
-                
+
                 controller.Home(TestUnit1);
 
                 var adc_val = controller.ReadADC(ADCChannels.CH1);
@@ -100,7 +99,7 @@ namespace M12.Tests
 
                 for (int i = 0; i < 5; i++)
                 {
-                    TestContext.WriteLine($"Cycle {i+1}"); ;
+                    TestContext.WriteLine($"Cycle {i + 1}"); ;
                     try
                     {
                         controller.SetCSSEnable(TestCSS, true);
@@ -124,10 +123,33 @@ namespace M12.Tests
                     adc_val = controller.ReadADC(ADCChannels.CH1);
                     TestContext.WriteLine($"V_CSS1 after TOUCHED: {adc_val[0]}mV");
                 }
-                
+
 
                 controller.Close();
             }
+        }
+
+        [Test()]
+        public void SingleUnitSettingAndSavingToENV()
+        {
+            using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
+            {
+                controller.Open();
+
+                controller.SetAccelerationSteps(TestUnit1, 500);
+
+                controller.SetMode(TestUnit1,
+                    new UnitSettings(ModeEnum.TwoPulse, PulsePinEnum.CW, false, true, true, ActiveLevelEnum.Low));
+
+                controller.SaveUnitENV(TestUnit1);
+
+                controller.Home(TestUnit1);
+
+                controller.Close();
+
+            }
+
+
         }
 
         [Test]
