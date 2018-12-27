@@ -243,7 +243,7 @@ namespace M12
         }
 
         /// <summary>
-        /// Set the status of the specified digital output.
+        /// Set the status of the specified digital output port.
         /// </summary>
         /// <param name="Channel">DOUT1 to DOUT8</param>
         /// <param name="Status">OFF:0; ON:1</param>
@@ -256,10 +256,39 @@ namespace M12
         }
 
         /// <summary>
+        /// Read the status of all the digital output ports.
+        /// </summary>
+        /// <returns></returns>
+        public DigitalOutputStatus ReadDOUT()
+        {
+            RxPackage package;
+
+            lock(lockController)
+            {
+                Send(new CommandReadDOUT());
+                Read(out package, CancellationToken.None);
+            }
+
+            var status = new DigitalOutputStatus(package.Payload);
+            return status;
+        }
+
+        /// <summary>
+        /// Read the status of the specified digital output port.
+        /// </summary>
+        /// <param name="Channel"></param>
+        /// <returns></returns>
+        public DigitalIOStatus ReadDOUT(DigitalOutput Channel)
+        {
+            var stat = ReadDOUT();
+            return stat.Integrated[(int)Channel - 1];
+        }
+
+        /// <summary>
         /// Read the status of the digital input IOs.
         /// </summary>
         /// <returns></returns>
-        public DigitalInput ReadDIN()
+        public DigitalInputStatus ReadDIN()
         {
             RxPackage package;
 
@@ -269,7 +298,7 @@ namespace M12
                 Read(out package, CancellationToken.None);
             }
 
-            var input = new DigitalInput(package.Payload);
+            var input = new DigitalInputStatus(package.Payload);
             return input;
         }
 

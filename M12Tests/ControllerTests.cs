@@ -13,7 +13,7 @@ namespace M12.Tests
     [TestFixture()]
     public class ControllerTests
     {
-        const string PORT_NAME = "COM21";
+        const string PORT_NAME = "COM20";
         const int BAUDRATE = 115200;
         const UnitID TestUnit1 = UnitID.U11;
         const UnitID TestUnit2 = UnitID.U2;
@@ -171,6 +171,32 @@ namespace M12.Tests
 
                 controller.Close();
 
+            }
+        }
+
+        [Test]
+        public void DigitalIOTest()
+        {
+            using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
+            {
+                controller.Open();
+
+                var sta1 = controller.ReadDOUT();
+                TestContext.WriteLine(sta1);
+
+                controller.SetDOUT(DigitalOutput.DOUT1, DigitalIOStatus.ON);
+
+                var sta2 = controller.ReadDOUT();
+                TestContext.WriteLine(sta2);
+
+                controller.SetDOUT(DigitalOutput.DOUT1, DigitalIOStatus.OFF);
+
+                var sta3 = controller.ReadDOUT(DigitalOutput.DOUT1);
+                TestContext.WriteLine(sta3);
+
+
+
+                controller.Close();
             }
         }
 

@@ -42,7 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\ADCValues.cs" />
-    <Compile Include="Base\DigitalInput.cs" />
+    <Compile Include="Base\DigitalInputStatus.cs" />
+    <Compile Include="Base\DigitalOutputStatus.cs" />
     <Compile Include="Base\MemoryBlock.cs" />
     <Compile Include="Base\Point2D.cs" />
     <Compile Include="Base\Point3D.cs" />
@@ -50,6 +51,7 @@
     <Compile Include="Commands\General\CommandSaveUnitENV.cs" />
     <Compile Include="Commands\General\CommandSetCSSEnable.cs" />
     <Compile Include="Commands\General\CommandSetCSSThreshold.cs" />
+    <Compile Include="Commands\IO\CommandReadDOUT.cs" />
     <Compile Include="Excpections\ADCSamplingPointMissException.cs" />
     <Compile Include="Excpections\SystemErrorException.cs" />
     <Compile Include="Base\SystemLastError.cs" />
