@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using M12.CustomizedAttribute;
 using M12.Definitions;
 
 namespace M12.Commands.General
 {
+    [CommandIndex(CommandDef.HOST_CMD_GET_MCSU_STA)]
     public class CommandGetUnitState : CommandBase
     {
         public CommandGetUnitState(UnitID UnitID)
@@ -16,13 +13,7 @@ namespace M12.Commands.General
 
         #region Properties
 
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_GET_MCSU_STA;
-            }
-        }
+        public override CommandDef Command => CommandDef.HOST_CMD_GET_MCSU_STA;
 
         #endregion
 

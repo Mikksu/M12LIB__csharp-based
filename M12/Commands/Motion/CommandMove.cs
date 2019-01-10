@@ -19,11 +19,11 @@ namespace M12.Commands.Motion
 
         #region Properties
 
-        public override Commands Command
+        public override CommandDef Command
         {
             get
             {
-                return Commands.HOST_CMD_MOVE;
+                return CommandDef.HOST_CMD_MOVE;
             }
         }
       

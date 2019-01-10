@@ -1,8 +1,10 @@
 ﻿using System.IO;
+using M12.CustomizedAttribute;
 using M12.Definitions;
 
 namespace M12.Commands.General
 {
+    [CommandIndex(CommandDef.HOST_CMD_SET_ACC)]
     public class CommandSetAccSteps : CommandBase
     {
         public CommandSetAccSteps(UnitID UnitID, ushort AccelerationSteps)
@@ -13,13 +15,7 @@ namespace M12.Commands.General
 
         #region Properties
 
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_SET_ACC;
-            }
-        }
+        public override CommandDef Command => CommandDef.HOST_CMD_SET_ACC;
 
         public ushort AccelerationSteps { get; set; }
 

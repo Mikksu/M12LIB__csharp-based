@@ -1,12 +1,13 @@
 ﻿using System.IO;
 using M12.Base;
+using M12.CustomizedAttribute;
 using M12.Definitions;
 
 namespace M12.Commands.General
 {
+    [CommandIndex(CommandDef.HOST_CMD_SET_MODE)]
     public class CommandSetMode : CommandBase
     {
-
         public CommandSetMode(UnitID UnitID, UnitSettings Mode)
         {
             this.UnitID = UnitID;
@@ -15,13 +16,7 @@ namespace M12.Commands.General
 
         #region Properties
 
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_SET_MODE;
-            }
-        }
+        public override CommandDef Command => CommandDef.HOST_CMD_SET_MODE;
 
         public UnitSettings Mode { get; set; }
 

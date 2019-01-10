@@ -1,8 +1,10 @@
-﻿using System.IO;
-using M12.Definitions;
+﻿using M12.CustomizedAttribute;
+using System.IO;
 
 namespace M12.Commands.Alignment
 {
+
+    [CommandIndex(CommandDef.HOST_CMD_BLINDSEARCH)]
     public class CommandBlindSearch : CommandBase
     {
         public CommandBlindSearch(BlindSearchArgs HorizontalArgs,  BlindSearchArgs VerticalArgs)
@@ -13,13 +15,7 @@ namespace M12.Commands.Alignment
 
         #region Properties
 
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_BLINDSEARCH;
-            }
-        }
+        public override CommandDef Command => CommandDef.HOST_CMD_BLINDSEARCH;
 
         /// <summary>
         /// Get or set the scan arguments of the horizontal axis.

@@ -48,10 +48,13 @@
     <Compile Include="Base\Point2D.cs" />
     <Compile Include="Base\Point3D.cs" />
     <Compile Include="Commands\Alignment\BlindSearchArgs.cs" />
+    <Compile Include="Commands\Alignment\CommandSnakeSearch.cs" />
+    <Compile Include="Commands\Alignment\SnakeSearchArgs.cs" />
     <Compile Include="Commands\General\CommandSaveUnitENV.cs" />
     <Compile Include="Commands\General\CommandSetCSSEnable.cs" />
     <Compile Include="Commands\General\CommandSetCSSThreshold.cs" />
     <Compile Include="Commands\IO\CommandReadDOUT.cs" />
+    <Compile Include="CustomizedAttribute\CommandIndexAttribute.cs" />
     <Compile Include="Excpections\ADCSamplingPointMissException.cs" />
     <Compile Include="Excpections\SystemErrorException.cs" />
     <Compile Include="Base\SystemLastError.cs" />

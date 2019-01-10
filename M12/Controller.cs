@@ -495,6 +495,15 @@ namespace M12
 
         #region Alignment
 
+        /// <summary>
+        /// Perform the fast-1D alignment with one analog capture channel actived.
+        /// </summary>
+        /// <param name="Unit"></param>
+        /// <param name="Range"></param>
+        /// <param name="Interval"></param>
+        /// <param name="Speed"></param>
+        /// <param name="AnalogCapture"></param>
+        /// <param name="ScanResults"></param>
         public void StartFast1D(UnitID Unit, int Range, ushort Interval, byte Speed, ADCChannels AnalogCapture, out List<Point2D> ScanResults)
         {
             List<Point2D> fakeList = null;
@@ -503,7 +512,7 @@ namespace M12
         }
 
         /// <summary>
-        /// Perform the fast-1D alignment.
+        /// Perform the fast-1D alignment with two analog capture channel actived.
         /// </summary>
         /// <param name="Unit"></param>
         /// <param name="Range"></param>
@@ -582,10 +591,10 @@ namespace M12
                 throw new ArgumentException($"specify ONLY one channel of the ADC to capture the analog signal.");
 
             if (HorizontalArgs.Gap < HorizontalArgs.Interval)
-                throw new ArgumentException($"the trigger interval of {HorizontalArgs.Unit} shoud be less than the value of the gap.");
+                throw new ArgumentException($"the capture interval of {HorizontalArgs.Unit} shoud be less than the value of the gap.");
 
             if (VerticalArgs.Gap < VerticalArgs.Interval)
-                throw new ArgumentException($"the trigger interval of {VerticalArgs.Unit} shoud be less than the value of the gap.");
+                throw new ArgumentException($"the capture interval of {VerticalArgs.Unit} shoud be less than the value of the gap.");
 
             ScanResults = new List<Point3D>();
 
@@ -599,7 +608,9 @@ namespace M12
             var err = WaitBySystemState(200, 120000);
 
             if (err.Error != Errors.ERR_NONE)
+            {
                 throw new SystemErrorException(err);
+            }
             else
             {
 
@@ -645,15 +656,15 @@ namespace M12
 
                     if (Math.Abs(steps) > activeParam.Range)
                         break;
-                    
+
                     // for the horizontal axis.
-                    if(activeParam == HorizontalArgs)
+                    if (activeParam == HorizontalArgs)
                     {
                         var originPos = x;
 
-                        while(true)
+                        while (true)
                         {
-                            if(indexOfAdcValues > (adcValues.Count - 1))
+                            if (indexOfAdcValues > (adcValues.Count - 1))
                                 ScanResults.Add(new Point3D(x, y, 0));
                             else
                                 ScanResults.Add(new Point3D(x, y, adcValues[indexOfAdcValues++]));
@@ -667,7 +678,7 @@ namespace M12
                             }
                         }
                     }
-                    else if(activeParam == VerticalArgs)
+                    else if (activeParam == VerticalArgs)
                     {
                         var originPos = y;
 
@@ -687,17 +698,107 @@ namespace M12
                             }
                         }
                     }
-                    
+
                     cycle++;
 
                 }
 
-                // output debug data.
-                StringBuilder sb = new StringBuilder();
-                foreach(var point in ScanResults)
+                //// output debug data.
+                //StringBuilder sb = new StringBuilder();
+                //foreach(var point in ScanResults)
+                //{
+                //    sb.Append($"{point.X}\t{point.Y}\t{point.Z}\r\n");
+                //}
+
+                if (ScanResults.Count > adcValues.Count)
+                    throw new ADCSamplingPointMissException(ScanResults.Count, adcValues.Count);
+            }
+        }
+
+        /// <summary>
+        /// Perform the snake route scan.
+        /// </summary>
+        /// <param name="Args"></param>
+        /// <param name="AdcUsed"></param>
+        /// <param name="ScanResults"></param>
+        public void StartSnakeSearch(SnakeSearchArgs Args, ADCChannels AdcUsed, out List<Point3D> ScanResults)
+        {
+            //! The memory is cleared automatically, you don't have to clear it manually.
+
+            // check argments.
+            if (GlobalDefinition.NumberOfSetBits((int)AdcUsed) != 1)
+                throw new ArgumentException($"specify ONLY one channel of the ADC to capture the analog signal.");
+
+            if (Args.Gap < Args.Interval)
+                throw new ArgumentException($"the capture interval shoud be less than the value of the gap.");
+
+            ScanResults = new List<Point3D>();
+
+            ConfigADCTrigger(AdcUsed);
+
+            lock (lockController)
+            {
+                Send(new CommandSnakeSearch(Args));
+            } 
+
+            var err = WaitBySystemState(200, 120000);
+
+            if (err.Error != Errors.ERR_NONE)
+            {
+                throw new SystemErrorException(err);
+            }
+            else
+            {
+
+                //var values = new List<double>(new double[100000]);
+                // read the sampling points from the memory.
+                var adcValues = ReadMemoryAll();
+
+                int indexOfAdcValues = 0;
+                double x = 0, y = 0;
+                int direction = 1;
+
+                // rebuild the relationship between the position and the intensity.
+                while (true)
                 {
-                    sb.Append($"{point.X}\t{point.Y}\t{point.Z}\r\n");
+                    if (indexOfAdcValues >= adcValues.Count)
+                    {
+                        ScanResults.Add(new Point3D(x, y, 0));
+                    }
+                    else
+                        ScanResults.Add(new Point3D(x, y, adcValues[indexOfAdcValues]));
+
+                    x += Args.Interval * direction;
+
+                    if (x < 0)
+                    {
+                        x = 0;
+                    }
+                    else if (x > Args.HorizonalRange)
+                    {
+                        x = Args.HorizonalRange;
+                    }
+                    else
+                    {
+                        //continue to retrive ADC value along the x-axis.
+                        continue;
+                    }
+
+                    // finish to retrive ADC values along the x-axis.
+                    direction *= -1;
+                    y += Args.Gap;
+
+                    if (y > Args.VerticalRange)
+                        break;
+
                 }
+
+                //// output debug data.
+                //StringBuilder sb = new StringBuilder();
+                //foreach (var point in ScanResults)
+                //{
+                //    sb.Append($"{point.X}\t{point.Y}\t{point.Z}\r\n");
+                //}
 
                 if (ScanResults.Count > adcValues.Count)
                     throw new ADCSamplingPointMissException(ScanResults.Count, adcValues.Count);

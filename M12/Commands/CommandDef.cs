@@ -3,7 +3,7 @@
     /// <summary>
     /// The definition of commands supported by the bootloader.
     /// </summary>
-    public enum Commands
+    public enum CommandDef
     {
         HOST_CMD_CHECKMODE,
         HOST_CMD_HOME,
@@ -30,6 +30,7 @@
         HOST_CMD_SET_T_ADC,
         HOST_CMD_SET_T_OUT,
         HOST_CMD_BLINDSEARCH,
+        HOST_CMD_SNAKESEARCH,
         HOST_CMD_SAV_MCSU_ENV,
         HOST_CMD_SYS_RESET
     }

@@ -1,23 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using M12.CustomizedAttribute;
 
 namespace M12.Commands.General
 {
+    [CommandIndex(CommandDef.HOST_CMD_GET_ERR)]
     public class CommandGetLastError : CommandBase
     {
         #region Properties
 
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_GET_ERR;
-            }
-        }
-
+        public override CommandDef Command => CommandDef.HOST_CMD_GET_ERR;
+            
         #endregion
     }
 }

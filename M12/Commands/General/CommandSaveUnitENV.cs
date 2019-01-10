@@ -1,7 +1,9 @@
-﻿using M12.Definitions;
+﻿using M12.CustomizedAttribute;
+using M12.Definitions;
 
 namespace M12.Commands.General
 {
+    [CommandIndex(CommandDef.HOST_CMD_SAV_MCSU_ENV)]
     public class CommandSaveUnitENV : CommandBase
     {
 
@@ -12,13 +14,7 @@ namespace M12.Commands.General
 
         #region Properties
 
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_SAV_MCSU_ENV;
-            }
-        }
+        public override CommandDef Command => CommandDef.HOST_CMD_SAV_MCSU_ENV;
 
         #endregion
     }

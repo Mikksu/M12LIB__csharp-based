@@ -39,7 +39,7 @@ namespace M12.Commands
         /// <summary>
         /// Get the value of the command.
         /// </summary>
-        public virtual Commands Command
+        public virtual CommandDef Command
         {
             get
             {

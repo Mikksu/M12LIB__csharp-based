@@ -13,9 +13,9 @@ namespace M12.Tests
     [TestFixture()]
     public class ControllerTests
     {
-        const string PORT_NAME = "COM20";
+        const string PORT_NAME = "COM4";
         const int BAUDRATE = 115200;
-        const UnitID TestUnit1 = UnitID.U11;
+        const UnitID TestUnit1 = UnitID.U1;
         const UnitID TestUnit2 = UnitID.U2;
 
         const CSSCH TestCSS = CSSCH.CH2;
@@ -359,6 +359,33 @@ namespace M12.Tests
                 controller.Close();
 
 
+                TestContext.WriteLine($"{Results.Count} Points scanned.");
+            }
+        }
+
+        [Test()]
+        public void StartSnakeSearch()
+        {
+            using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
+            {
+                controller.Open();
+
+                controller.SetAccelerationSteps(TestUnit1, 1000);
+
+                controller.Home(TestUnit1);
+
+                controller.Move(TestUnit1, 5000, 20);
+
+                controller.Home(TestUnit2);
+
+                controller.Move(TestUnit2, 5000, 20);
+
+                SnakeSearchArgs args = new SnakeSearchArgs(TestUnit1, 100, TestUnit2, 20, 1, 1, 50);
+
+                controller.StartSnakeSearch(args, ADCChannels.CH1, out List<Point3D> Results);
+
+                controller.Close();
+                
                 TestContext.WriteLine($"{Results.Count} Points scanned.");
             }
         }
