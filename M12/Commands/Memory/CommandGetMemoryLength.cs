@@ -11,11 +11,11 @@ namespace M12.Commands.Memory
 
         #region Properties
 
-        public override Commands Command
+        public override CommandDef Command
         {
             get
             {
-                return Commands.HOST_CMD_GET_MEM_LEN;
+                return CommandDef.HOST_CMD_GET_MEM_LEN;
             }
         }
         

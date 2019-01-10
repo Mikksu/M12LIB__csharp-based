@@ -8,11 +8,11 @@ namespace M12.Commands.IO
 {
     public class CommandReadDOUT : CommandBase
     {
-        public override Commands Command
+        public override CommandDef Command
         {
             get
             {
-                return Commands.HOST_CMD_READ_DOUT;
+                return CommandDef.HOST_CMD_READ_DOUT;
             }
         }
     }

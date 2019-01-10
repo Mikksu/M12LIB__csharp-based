@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using M12.CustomizedAttribute;
 using M12.Definitions;
+using System.IO;
 
 namespace M12.Commands.Analog
 {
+    [CommandIndex(CommandDef.HOST_CMD_READ_AD)]
     public class CommandReadADC : CommandBase
     {
         public CommandReadADC() : base()
@@ -19,17 +16,9 @@ namespace M12.Commands.Analog
         {
             this.ChannelEnabled = ChannelEnabled;
         }
-
-
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_READ_AD;
-            }
-        }
-
-
+        
+        public override CommandDef Command => CommandDef.HOST_CMD_READ_AD;
+        
         public ADCChannels ChannelEnabled { get; set; }
 
         internal override byte[] GeneratePayload()

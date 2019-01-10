@@ -1,8 +1,10 @@
 ﻿using System.IO;
+using M12.CustomizedAttribute;
 using M12.Definitions;
 
 namespace M12.Commands.General
 {
+    [CommandIndex(CommandDef.HOST_CMD_SET_CSSTHD)]
     public class CommandSetCSSThreshold : CommandBase
     {
         public CommandSetCSSThreshold(CSSCH Channel, ushort LowThreshold, ushort HighThreshold)
@@ -14,21 +16,14 @@ namespace M12.Commands.General
 
         #region Properties
 
+        public override CommandDef Command => CommandDef.HOST_CMD_SET_CSSTHD;
+
         public CSSCH CSSChannel { get; }
 
         public ushort LowThreshold { get; }
 
         public ushort HighThreshold { get; }
-
-
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_SET_CSSTHD;
-            }
-        }
-
+        
         #endregion
 
         #region Methods

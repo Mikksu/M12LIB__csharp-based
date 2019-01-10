@@ -1,8 +1,10 @@
-﻿using M12.Definitions;
+﻿using M12.CustomizedAttribute;
+using M12.Definitions;
 using System.IO;
 
 namespace M12.Commands.General
 {
+    [CommandIndex(CommandDef.HOST_CMD_EN_CSS)]
     public class CommandSetCSSEnable : CommandBase
     {
         public CommandSetCSSEnable(CSSCH Channel, bool IsEnabled)
@@ -13,19 +15,12 @@ namespace M12.Commands.General
 
         #region Properties
 
+        public override CommandDef Command => CommandDef.HOST_CMD_EN_CSS;
+
         public CSSCH CSSChannel { get; }
 
         public bool IsEnabled { get; }
 
-
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_EN_CSS;
-            }
-        }
-       
         #endregion
 
         #region Methods

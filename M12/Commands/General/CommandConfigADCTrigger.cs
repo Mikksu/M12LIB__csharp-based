@@ -1,8 +1,10 @@
 ﻿using System.IO;
+using M12.CustomizedAttribute;
 using M12.Definitions;
 
 namespace M12.Commands.General
 {
+    [CommandIndex(CommandDef.HOST_CMD_SET_T_ADC)]
     public class CommandConfigADCTrigger : CommandBase
     {
         public CommandConfigADCTrigger() : base()
@@ -16,15 +18,8 @@ namespace M12.Commands.General
         }
 
 
-        public override Commands Command
-        {
-            get
-            {
-                return Commands.HOST_CMD_SET_T_ADC;
-            }
-        }
-
-
+        public override CommandDef Command => CommandDef.HOST_CMD_SET_T_ADC;
+  
         public ADCChannels ChannelEnabled { get; set; }
 
         internal override byte[] GeneratePayload()

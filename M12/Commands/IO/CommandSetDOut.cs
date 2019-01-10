@@ -17,11 +17,11 @@ namespace M12.Commands.IO
         }
 
 
-        public override Commands Command
+        public override CommandDef Command
         {
             get
             {
-                return Commands.HOST_CMD_SET_DOUT;
+                return CommandDef.HOST_CMD_SET_DOUT;
             }
         }
 
