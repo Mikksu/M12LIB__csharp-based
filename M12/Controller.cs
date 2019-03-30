@@ -30,7 +30,7 @@ namespace M12
         /// <summary> 
         /// The timeout value of the wait method of the long-duration-operation in millisecond such as home, move.
         /// </summary>
-        const int DEFAULT_WAIT_BUSY_TIMEOUT = 30000;
+        const int DEFAULT_WAIT_BUSY_TIMEOUT = 5000;
 
         /// <summary>
         /// The timeout value of the waiting of alignment process.
@@ -985,9 +985,18 @@ namespace M12
             DateTime startTime = DateTime.Now;
             UnitState state = null;
 
+            int _lastPosition = 0;
+
             while(true)
             {
                 state = GetUnitState(UnitID);
+
+                // if the absposition is changed, reset the timeout clock.
+                if (state.AbsPosition != _lastPosition)
+                {
+                    startTime = DateTime.Now;
+                    _lastPosition = state.AbsPosition;
+                }
 
                 var curr_time = DateTime.Now;
                 

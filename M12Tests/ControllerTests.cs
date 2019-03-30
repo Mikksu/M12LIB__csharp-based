@@ -274,7 +274,7 @@ namespace M12.Tests
 
                 TestContext.WriteLine($"Move to +10000");
                 // long-range move
-                controller.Move(TestUnit1, 10000, 20);
+                controller.Move(TestUnit1, 31051, 20);
 
                 stat = controller.GetUnitState(TestUnit1);
                 TestContext.WriteLine($"Position: {stat.AbsPosition}");
@@ -298,6 +298,8 @@ namespace M12.Tests
                 controller.Move(TestUnit1, -500, 15);
                 stat = controller.GetUnitState(TestUnit1);
                 TestContext.WriteLine($"Position: {stat.AbsPosition}");
+
+                controller.Move(TestUnit1, -30000, 30);
 
                 controller.Close();
             }
