@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
-using System.Text;
 using System.Threading;
 
 namespace M12
@@ -604,7 +603,7 @@ namespace M12
             {
                 Send(new CommandBlindSearch(HorizontalArgs, VerticalArgs));
             }
-            
+                        
             var err = WaitBySystemState(200, 120000);
 
             if (err.Error != Errors.ERR_NONE)

@@ -13,9 +13,9 @@ namespace M12.Tests
     [TestFixture()]
     public class ControllerTests
     {
-        const string PORT_NAME = "COM4";
+        const string PORT_NAME = "COM9";
         const int BAUDRATE = 115200;
-        const UnitID TestUnit1 = UnitID.U1;
+        const UnitID TestUnit1 = UnitID.U4;
         const UnitID TestUnit2 = UnitID.U2;
 
         const CSSCH TestCSS = CSSCH.CH2;
@@ -164,7 +164,7 @@ namespace M12.Tests
                     controller.SetAccelerationSteps((UnitID)unit, 500);
 
                     controller.SetMode((UnitID)unit,
-                        new UnitSettings(ModeEnum.TwoPulse, PulsePinEnum.CW, true, false, true, ActiveLevelEnum.Low));
+                        new UnitSettings(ModeEnum.TwoPulse, PulsePinEnum.CW, false, false, true, ActiveLevelEnum.High));
 
                     controller.SaveUnitENV((UnitID)unit);
                 }
@@ -220,7 +220,7 @@ namespace M12.Tests
             {
                 controller.Open();
 
-                controller.Home(TestUnit1);
+                controller.Home(TestUnit1, 500, 5, 20);
 
                 controller.Close();
             }
@@ -258,6 +258,8 @@ namespace M12.Tests
         [Test]
         public void MotionCapabilityTest()
         {
+            UnitState stat;
+
             using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
             {
                 controller.Open();
@@ -270,15 +272,32 @@ namespace M12.Tests
                 controller.SetCSSThreshold(TestCSS, 2000, 3000);
                 controller.SetCSSEnable(TestCSS, true);
 
+                TestContext.WriteLine($"Move to +10000");
                 // long-range move
                 controller.Move(TestUnit1, 10000, 20);
 
+                stat = controller.GetUnitState(TestUnit1);
+                TestContext.WriteLine($"Position: {stat.AbsPosition}");
+
                 // Frequently move
                 for (int i = 0; i < 2; i++)
+                {
+                    TestContext.WriteLine($"Move to +100");
                     controller.Move(TestUnit1, 100, 15);
-                
+                    stat = controller.GetUnitState(TestUnit1);
+                    TestContext.WriteLine($"Position: {stat.AbsPosition}");
+                }
+
+                TestContext.WriteLine($"Move to -200");
                 controller.Move(TestUnit1, -200, 15);
+
+                stat = controller.GetUnitState(TestUnit1);
+                TestContext.WriteLine($"Position: {stat.AbsPosition}");
+
+                TestContext.WriteLine($"Move to -500");
                 controller.Move(TestUnit1, -500, 15);
+                stat = controller.GetUnitState(TestUnit1);
+                TestContext.WriteLine($"Position: {stat.AbsPosition}");
 
                 controller.Close();
             }
