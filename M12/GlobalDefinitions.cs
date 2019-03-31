@@ -20,6 +20,24 @@ namespace M12.Definitions
         INVALID = 0xFF
     }
 
+    public enum ModeEnum
+    {
+        OnePulse,
+        TwoPulse
+    }
+
+    public enum PulsePinEnum
+    {
+        CW,
+        CCW
+    }
+
+    public enum ActiveLevelEnum
+    {
+        High,
+        Low
+    }
+
     public enum CSSCH
     {
         CH1,

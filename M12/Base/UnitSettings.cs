@@ -1,4 +1,5 @@
-﻿using System;
+﻿using M12.Definitions;
+using System;
 using System.Collections;
 using System.IO;
 
@@ -6,24 +7,6 @@ namespace M12.Base
 {
     public class UnitSettings
     {
-        public enum ModeEnum
-        {
-            OnePulse,
-            TwoPulse
-        }
-
-        public enum PulsePinEnum
-        {
-            CW,
-            CCW
-        }
-
-        public enum ActiveLevelEnum
-        {
-            High,
-            Low
-        }
-
         public UnitSettings(byte[] Data)
         {
             using (MemoryStream stream = new MemoryStream(Data))
