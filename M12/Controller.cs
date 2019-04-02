@@ -197,13 +197,13 @@ namespace M12
         /// </summary>
         /// <param name="UnitID"></param>
         /// <param name="Settings"></param>
-        public void SetMode(UnitID UnitID, UnitSettings Mode)
+        public void ChangeUnitSettings(UnitID UnitID, UnitSettings Settings)
         {
-            if (Mode != null)
+            if (Settings != null)
             {
                 lock (lockController)
                 {
-                    Send(new CommandSetMode(UnitID, Mode));
+                    Send(new CommandSetMode(UnitID, Settings));
                 }
             }
             else

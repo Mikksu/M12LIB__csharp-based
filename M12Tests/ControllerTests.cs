@@ -138,8 +138,8 @@ namespace M12.Tests
 
                 controller.SetAccelerationSteps(TestUnit1, 500);
 
-                controller.SetMode(TestUnit1,
-                    new UnitSettings(ModeEnum.TwoPulse, PulsePinEnum.CW, false, true, true, ActiveLevelEnum.Low));
+                controller.ChangeUnitSettings(TestUnit1,
+                    new UnitSettings(ModeEnum.TwoPulse, PulsePinEnum.CW, false, true, true, ActiveLevelEnum.Low, false));
 
                 controller.SaveUnitENV(TestUnit1);
 
@@ -163,8 +163,8 @@ namespace M12.Tests
                 {
                     controller.SetAccelerationSteps((UnitID)unit, 500);
 
-                    controller.SetMode((UnitID)unit,
-                        new UnitSettings(ModeEnum.TwoPulse, PulsePinEnum.CW, false, false, true, ActiveLevelEnum.High));
+                    controller.ChangeUnitSettings((UnitID)unit,
+                        new UnitSettings(ModeEnum.TwoPulse, PulsePinEnum.CW, false, false, true, ActiveLevelEnum.High, false));
 
                     controller.SaveUnitENV((UnitID)unit);
                 }

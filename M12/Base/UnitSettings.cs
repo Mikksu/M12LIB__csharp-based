@@ -22,6 +22,7 @@ namespace M12.Base
                     this.IsFlipLimitSensor = bits[3];
                     this.IsDetectTimming = bits[4];
                     this.LimitSensorActiveLevel = bits[5] == false ? ActiveLevelEnum.High : ActiveLevelEnum.Low;
+                    this.IsFlipIOActiveLevel = bits[6];
 
                     this.GeneralAcceleration = reader.ReadUInt16();
                 }
@@ -30,7 +31,7 @@ namespace M12.Base
 
         public UnitSettings(ModeEnum Mode, PulsePinEnum PulsePin, 
             bool IsFlipDIR, bool IsFlipLimitSensor, bool IsDetectTimming, 
-            ActiveLevelEnum LSActiveLevel)
+            ActiveLevelEnum LSActiveLevel, bool IsFlipIOActiveLevel)
         {
             this.Mode = Mode;
             this.PulsePin = PulsePin;
@@ -38,6 +39,7 @@ namespace M12.Base
             this.IsFlipLimitSensor = IsFlipLimitSensor;
             this.IsDetectTimming = IsDetectTimming;
             this.LimitSensorActiveLevel = LSActiveLevel;
+            this.IsFlipIOActiveLevel = IsFlipIOActiveLevel;
         }
 
         public int UnitID { get; set; }
@@ -47,6 +49,7 @@ namespace M12.Base
         public bool IsFlipLimitSensor { get; set; }
         public bool IsDetectTimming { get; set; }
         public ActiveLevelEnum LimitSensorActiveLevel { get; set; }
+        public bool IsFlipIOActiveLevel { get; set; }
         
         public UInt16 GeneralAcceleration { get; set; }
 
@@ -62,6 +65,7 @@ namespace M12.Base
             ret |= (byte)((this.IsFlipLimitSensor == false ? 0 : 1) << 3);
             ret |= (byte)((this.IsDetectTimming == false ? 0 : 1) << 4);
             ret |= (byte)((this.LimitSensorActiveLevel == ActiveLevelEnum.High ? 0 : 1) << 5);
+            ret |= (byte)((this.IsFlipIOActiveLevel == false ? 0 : 1) << 6);
 
             return new byte[] { ret };
         }
@@ -74,6 +78,7 @@ namespace M12.Base
                 $"{(IsFlipLimitSensor ? "LS Flipped" : "LS Default")}, " +
                 $"{(IsDetectTimming ? "Detect Timming" : "Ignore Timming")}, " +
                 $"LS {Enum.GetName(typeof(ActiveLevelEnum), LimitSensorActiveLevel)}, " +
+                $"{(IsFlipIOActiveLevel? "IO ActLev is flipped": "IO ActLev default")}," +
                 $"Move Acc: {GeneralAcceleration} steps";
         }
 
