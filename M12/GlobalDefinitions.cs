@@ -100,6 +100,17 @@ namespace M12.Definitions
         CH8 = (1 << 7),
     }
 
+    public enum ADC_OSR
+    {
+        AD7606_OSR_0 = 0x0,
+        AD7606_OSR_2 = 0x1,
+        AD7606_OSR_4 = 0x2,
+        AD7606_OSR_8 = 0x3,
+        AD7606_OSR_16 = 0x4,
+        AD7606_OSR_32 = 0x5,
+        AD7606_OSR_64 = 0x6
+    }
+
     public class GlobalDefinition
     {
         /// <summary>

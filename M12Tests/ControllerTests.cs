@@ -13,7 +13,7 @@ namespace M12.Tests
     [TestFixture()]
     public class ControllerTests
     {
-        const string PORT_NAME = "COM9";
+        const string PORT_NAME = "COM10";
         const int BAUDRATE = 115200;
         const UnitID TestUnit1 = UnitID.U4;
         const UnitID TestUnit2 = UnitID.U2;
@@ -408,6 +408,19 @@ namespace M12.Tests
                 controller.Close();
                 
                 TestContext.WriteLine($"{Results.Count} Points scanned.");
+            }
+        }
+
+        [Test()]
+        public void SetOSR()
+        {
+            using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
+            {
+                controller.Open();
+
+                controller.SetOSR(ADC_OSR.AD7606_OSR_2);
+                
+                controller.Close();
             }
         }
     }

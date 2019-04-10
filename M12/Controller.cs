@@ -327,6 +327,20 @@ namespace M12
         }
 
         /// <summary>
+        /// Set the OSR of the ADC7606.
+        /// </summary>
+        /// <param name="OSR"></param>
+        public void SetOSR(ADC_OSR OSR)
+        {
+            lock (lockController)
+            {
+                Send(new CommandSetOSR(OSR));
+            }
+
+            Thread.Sleep(100);
+        }
+
+        /// <summary>
         /// Save the ENV of the specified Unit to the flash.
         /// </summary>
         /// <param name="UnitID"></param>

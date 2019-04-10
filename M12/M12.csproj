@@ -50,6 +50,7 @@
     <Compile Include="Commands\Alignment\BlindSearchArgs.cs" />
     <Compile Include="Commands\Alignment\CommandSnakeSearch.cs" />
     <Compile Include="Commands\Alignment\SnakeSearchArgs.cs" />
+    <Compile Include="Commands\Analog\CommandSetOSR.cs" />
     <Compile Include="Commands\General\CommandSaveUnitENV.cs" />
     <Compile Include="Commands\General\CommandSetCSSEnable.cs" />
     <Compile Include="Commands\General\CommandSetCSSThreshold.cs" />

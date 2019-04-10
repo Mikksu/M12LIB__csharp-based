@@ -33,7 +33,7 @@
         HOST_CMD_BLINDSEARCH,
         HOST_CMD_SNAKESEARCH,
         HOST_CMD_SAV_MCSU_ENV,
-        HOST_CMD_SYS_RESET
+        HOST_CMD_SET_ADC_OSR,
     }
     
 }
