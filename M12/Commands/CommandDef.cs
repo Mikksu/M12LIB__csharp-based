@@ -10,6 +10,7 @@
         HOST_CMD_MOVE,
         HOST_CMD_MOVE_T_OUT,
         HOST_CMD_MOVE_T_ADC,
+        HOST_CMD_FAST_MOVE,
         HOST_CMD_STOP,
         HOST_CMD_SET_ACC,
         HOST_CMD_SET_MODE,
