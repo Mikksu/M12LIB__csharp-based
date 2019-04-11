@@ -437,6 +437,45 @@ namespace M12
         }
 
         /// <summary>
+        /// Fast move the specified axis.
+        /// </summary>
+        /// <param name="UnitID"></param>
+        /// <param name="Steps"></param>
+        /// <param name="Speed"></param>
+        /// <param name="Microsteps"></param>
+        public void FastMove(UnitID UnitID, int Steps, byte Speed, ushort Microsteps)
+        {
+            Errors err = Errors.ERR_NONE;
+
+            // check arguments
+            if (Speed > 100)
+                Speed = 100;
+            else if (Speed == 0)
+                Speed = 1;
+
+            lock (lockController)
+            {
+                Send(new CommandFastMove(UnitID, Steps, Speed, Microsteps));
+            }
+
+            try
+            {
+                err = WaitByUnitState(UnitID, 5);
+            }
+            catch (TimeoutException ex)
+            {
+                lock (lockController)
+                {
+                    Send(new CommandStop(UnitID));
+                }
+                throw ex;
+            }
+
+            if (err != Errors.ERR_NONE)
+                throw new UnitErrorException(UnitID, err);
+        }
+
+        /// <summary>
         /// Move the specified channel and capture the ADC value.
         /// </summary>
         /// <param name="UnitID"></param>

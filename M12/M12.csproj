@@ -55,6 +55,7 @@
     <Compile Include="Commands\General\CommandSetCSSEnable.cs" />
     <Compile Include="Commands\General\CommandSetCSSThreshold.cs" />
     <Compile Include="Commands\IO\CommandReadDOUT.cs" />
+    <Compile Include="Commands\Motion\CommandFastMove.cs" />
     <Compile Include="CustomizedAttribute\CommandIndexAttribute.cs" />
     <Compile Include="Excpections\ADCSamplingPointMissException.cs" />
     <Compile Include="Excpections\SystemErrorException.cs" />

@@ -423,5 +423,22 @@ namespace M12.Tests
                 controller.Close();
             }
         }
+
+        [Test()]
+        public void FastMove()
+        {
+            using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
+            {
+                controller.Open();
+
+                controller.Home(TestUnit1);
+
+                controller.Move(TestUnit1, 100001, 100);
+
+                controller.FastMove(TestUnit1, -100001, 10, 20);
+
+                controller.Close();
+            }
+        }
     }
 }
