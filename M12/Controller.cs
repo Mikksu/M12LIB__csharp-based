@@ -762,7 +762,7 @@ namespace M12
                 //    sb.Append($"{point.X}\t{point.Y}\t{point.Z}\r\n");
                 //}
 
-                if (ScanResults.Count > adcValues.Count)
+                if (ScanResults.Count != adcValues.Count)
                     throw new ADCSamplingPointMissException(ScanResults.Count, adcValues.Count);
             }
         }
@@ -852,7 +852,7 @@ namespace M12
                 //    sb.Append($"{point.X}\t{point.Y}\t{point.Z}\r\n");
                 //}
 
-                if (ScanResults.Count > adcValues.Count)
+                if (ScanResults.Count != adcValues.Count)
                     throw new ADCSamplingPointMissException(ScanResults.Count, adcValues.Count);
             }
         }
@@ -1039,8 +1039,10 @@ namespace M12
             UnitState state = null;
 
             int _lastPosition = 0;
+            
+            Thread.Sleep(5);
 
-            while(true)
+            while (true)
             {
                 state = GetUnitState(UnitID);
 
@@ -1080,6 +1082,8 @@ namespace M12
         {
             DateTime startTime = DateTime.Now;
             SystemState state = null;
+
+            Thread.Sleep(5);
 
             while (true)
             {

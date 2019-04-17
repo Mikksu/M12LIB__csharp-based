@@ -13,10 +13,10 @@ namespace M12.Tests
     [TestFixture()]
     public class ControllerTests
     {
-        const string PORT_NAME = "COM10";
+        const string PORT_NAME = "COM4";
         const int BAUDRATE = 115200;
-        const UnitID TestUnit1 = UnitID.U4;
-        const UnitID TestUnit2 = UnitID.U2;
+        const UnitID TestUnit1 = UnitID.U3;
+        const UnitID TestUnit2 = UnitID.U3;
 
         const CSSCH TestCSS = CSSCH.CH2;
 
@@ -366,16 +366,18 @@ namespace M12.Tests
 
                 controller.Home(TestUnit1);
 
-                controller.Move(TestUnit1, 5000, 20);
+                controller.Move(TestUnit1, 1000, 20);
 
                 controller.Home(TestUnit2);
 
-                controller.Move(TestUnit2, 5000, 20);
+                controller.Move(TestUnit2, 1000, 20);
 
-                BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 100, 1, 1, 50);
-                BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 1000, 10, 10, 100);
+                controller.SetOSR(ADC_OSR.AD7606_OSR_0);
 
-                controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH1, out List<Point3D> Results);
+                BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 500, 2, 2, 50);
+                BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 500, 2, 2, 50);
+
+                controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH2, out List<Point3D> Results);
 
                 controller.Close();
 
