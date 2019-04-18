@@ -13,9 +13,9 @@ namespace M12.Tests
     [TestFixture()]
     public class ControllerTests
     {
-        const string PORT_NAME = "COM4";
+        const string PORT_NAME = "COM16";
         const int BAUDRATE = 115200;
-        const UnitID TestUnit1 = UnitID.U3;
+        const UnitID TestUnit1 = UnitID.U2;
         const UnitID TestUnit2 = UnitID.U3;
 
         const CSSCH TestCSS = CSSCH.CH2;
@@ -362,8 +362,6 @@ namespace M12.Tests
             {
                 controller.Open();
 
-                controller.SetAccelerationSteps(TestUnit1, 1000);
-
                 controller.Home(TestUnit1);
 
                 controller.Move(TestUnit1, 1000, 20);
@@ -374,8 +372,8 @@ namespace M12.Tests
 
                 controller.SetOSR(ADC_OSR.AD7606_OSR_0);
 
-                BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 500, 2, 2, 50);
-                BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 500, 2, 2, 50);
+                BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 100, 20, 20, 50);
+                BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 100, 20, 20, 50);
 
                 controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH2, out List<Point3D> Results);
 

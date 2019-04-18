@@ -10,6 +10,7 @@ using M12.Exceptions;
 using M12.Excpections;
 using M12.Interfaces;
 using M12.Packages;
+using M12.ProgressReport;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -558,9 +559,7 @@ namespace M12
         /// <param name="ScanResults"></param>
         public void StartFast1D(UnitID Unit, int Range, ushort Interval, byte Speed, ADCChannels AnalogCapture, out List<Point2D> ScanResults)
         {
-            List<Point2D> fakeList = null;
-
-            StartFast1D(Unit, Range, Interval, Speed, AnalogCapture, out ScanResults, 0, out fakeList);
+            StartFast1D(Unit, Range, Interval, Speed, AnalogCapture, out ScanResults, 0, out _);
         }
 
         /// <summary>
@@ -634,7 +633,7 @@ namespace M12
         /// <param name="VerticalArgs">The arguments of the vertical axis.</param>
         /// <param name="AdcUsed">Note: only one ADC channel can be used to sample.</param>
         /// <param name="ScanResults">Return the intensity-to-position points.</param>
-        public void StartBlindSearch(BlindSearchArgs HorizontalArgs, BlindSearchArgs VerticalArgs, ADCChannels AdcUsed, out List<Point3D> ScanResults)
+        public void StartBlindSearch(BlindSearchArgs HorizontalArgs, BlindSearchArgs VerticalArgs, ADCChannels AdcUsed, out List<Point3D> ScanResults, IProgress<BlindSearchProgressReport> ProgressReportHandle = null)
         {
             //! The memory is cleared automatically, you don't have to clear it manually.
 
@@ -652,6 +651,9 @@ namespace M12
 
             ConfigADCTrigger(AdcUsed);
 
+            // report progress.
+            ProgressReportHandle?.Report(new BlindSearchProgressReport(BlindSearchProgressReport.ProgressStage.SCAN, 0));
+
             lock (lockController)
             {
                 Send(new CommandBlindSearch(HorizontalArgs, VerticalArgs));
@@ -668,7 +670,11 @@ namespace M12
 
                 //var values = new List<double>(new double[100000]);
                 // read the sampling points from the memory.
-                var adcValues = ReadMemoryAll();
+                var adcValues = ReadMemoryAll(new Progress<MemoryReadProgressReport>(e =>
+                {
+                    // report transmission progress.
+                    ProgressReportHandle?.Report(new BlindSearchProgressReport(BlindSearchProgressReport.ProgressStage.TRANS, e.Complete));
+                }));
 
                 int indexOfAdcValues = 0;
                 int cycle = 0;
@@ -930,10 +936,61 @@ namespace M12
         /// Read all ADC values.
         /// </summary>
         /// <returns></returns>
-        public List<double> ReadMemoryAll()
+        public List<double> ReadMemoryAll(IProgress<MemoryReadProgressReport> ProgressReportHandle = null)
         {
             var len = GetMemoryLength();
-            return ReadMemory(0, len);
+
+            List<double> buff = new List<double>((int)len);
+
+            var blockLen = 128; // read 128 points each time.
+            var cycle0 = len / blockLen;
+            var cycle1 = len % blockLen;
+            var offset = 0;
+            int retry = 0;
+
+            for (int i = 0; i < cycle0; i++)
+            {
+                try
+                {
+                    var mem = ReadMemory((uint)offset, (uint)blockLen);
+                    buff.AddRange(mem);
+                    offset += blockLen;
+                    retry = 0;
+
+                    // report progress.
+                    ProgressReportHandle?.Report(new MemoryReadProgressReport(offset, (int)len));
+                }
+                catch(Exception ex)
+                {
+                    retry++;
+                    if (retry > 3)
+                        throw ex;
+                    else
+                        Thread.Sleep(100);
+                }
+            }
+
+            if(cycle1 > 0)
+            {
+                try
+                {
+                    var mem = ReadMemory((uint)offset, (uint)cycle1);
+                    buff.AddRange(mem);
+
+                    // report progress.
+                    ProgressReportHandle?.Report(new MemoryReadProgressReport(offset, (int)len));
+                }
+                catch(Exception ex)
+                {
+                    retry++;
+                    if (retry > 3)
+                        throw ex;
+                    else
+                        Thread.Sleep(100);
+                }
+            }
+
+            return buff;
         }
 
         /// <summary>

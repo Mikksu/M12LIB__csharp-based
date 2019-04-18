@@ -90,6 +90,8 @@
     <Compile Include="Interfaces\ICommand.cs" />
     <Compile Include="Packages\RxPackage.cs" />
     <Compile Include="Base\SystemInformation.cs" />
+    <Compile Include="ProgressReport\BlindSearchProgressReport.cs" />
+    <Compile Include="ProgressReport\MemoryReadProgressReport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Base\UnitInformation.cs" />
     <Compile Include="Base\UnitSettings.cs" />
