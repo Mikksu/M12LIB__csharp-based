@@ -375,12 +375,37 @@ namespace M12.Tests
                 BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 100, 20, 20, 50);
                 BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 100, 20, 20, 50);
 
-                controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH2, out List<Point3D> Results);
+                Exception exCaptured = null;
+                List<Point3D> Results = null;
+
+                for (int i = 0; i < 10; i++)
+                {
+                    exCaptured = null;
+
+                    try
+                    {
+                        controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH2, out Results);
+                    }
+                    catch (Exception ex)
+                    {
+                        exCaptured = ex;
+                    }
+                    finally
+                    {
+                        TestContext.Write($"Cycle {i}, ");
+                        if(exCaptured == null)
+                            TestContext.WriteLine($"Points {Results.Count}, Succeed!");
+                        else
+                            TestContext.WriteLine($"Failed!");
+                    }
+                }
+
+                
 
                 controller.Close();
 
 
-                TestContext.WriteLine($"{Results.Count} Points scanned.");
+                //TestContext.WriteLine($"{Results.Count} Points scanned.");
             }
         }
 

@@ -622,7 +622,7 @@ namespace M12
             }
             
             // ran too fast, some ADC value missed.
-            if (ScanResults.Count * Interval < Range)
+            if (ScanResults.Count * Interval != Range)
                 throw new ADCSamplingPointMissException((int)Math.Ceiling((decimal)Range / Interval),  ScanResults.Count);
         }
 
@@ -1097,7 +1097,7 @@ namespace M12
 
             int _lastPosition = 0;
             
-            Thread.Sleep(5);
+            Thread.Sleep(50);
 
             while (true)
             {
@@ -1140,7 +1140,7 @@ namespace M12
             DateTime startTime = DateTime.Now;
             SystemState state = null;
 
-            Thread.Sleep(5);
+            Thread.Sleep(50);
 
             while (true)
             {
