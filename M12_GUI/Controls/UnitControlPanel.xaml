@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="M12_GUI.Controls.UnitControlPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:M12_GUI.Controls"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:m12_def="clr-namespace:M12.Definitions;assembly=M12"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="600" Background="White" >
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="UnitWorkMode" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="m12_def:ModeEnum"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="PulsePin" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="m12_def:PulsePinEnum"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="LSActive" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="m12_def:ActiveLevelEnum"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <GroupBox Header="Motor Control">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="70"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="1" Text="Abs Steps" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="Steps" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="3" Text="Speed" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <TextBlock Grid.Row="1" Text="{Binding Caption}" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding AbsPosition}" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding StepsToMove}" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding Speed}" VerticalAlignment="Center"/>
+                <Button Grid.Row="1" Grid.Column="4" Content="-" VerticalAlignment="Center" Command="{Binding MoveBackwardCommand}"/>
+                <Button Grid.Row="1" Grid.Column="5" Content="+" VerticalAlignment="Center" Command="{Binding MoveForwardCommand}"/>
+                <Button Grid.Row="1" Grid.Column="6" Content="HOME" VerticalAlignment="Center" Command="{Binding HomeCommand}"/>
+                <Button Grid.Row="1" Grid.Column="7" Content="STOP" VerticalAlignment="Center" Command="{Binding StopCommand}"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="1" Header="Status">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <ToggleButton Content="Is Inited" IsEnabled="False" IsChecked="{Binding IsInited, Mode=OneWay}"/>
+                <ToggleButton Content="Is Homed" IsEnabled="False" IsChecked="{Binding IsHomed, Mode=OneWay}"/>
+                <ToggleButton Content="Is Busy" IsEnabled="False" IsChecked="{Binding IsBusy, Mode=OneWay}"/>
+                <ToggleButton IsEnabled="False" Content="{Binding UnitError, Mode=OneWay}"/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Grid.Row="2" Header="Unit Settings">
+            <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="7" VerticalAlignment="Center">
+                <ComboBox ItemsSource="{Binding Source={StaticResource UnitWorkMode}}" SelectedValue="{Binding UnitMode}"/>
+                <ComboBox ItemsSource="{Binding Source={StaticResource PulsePin}}" SelectedValue="{Binding PulsePin}"/>
+                <ComboBox ItemsSource="{Binding Source={StaticResource LSActive}}" SelectedValue="{Binding LSActiveLevel}"/>
+                <ToggleButton Content="Flip Dir" IsChecked="{Binding FlipMoveDir}"/>
+                <ToggleButton Content="Flip LS" IsChecked="{Binding FlipLS}"/>
+                <ToggleButton Content="Flip IO AL" IsChecked="{Binding IsFlipIOActiveLevel}"/>
+                <ToggleButton Content="Detect Timming" IsChecked="{Binding IsDetectTimmingSignal}"/>
+                <Button Content="Save Settings" Command="{Binding ChangeUnitSettingsCommand}"/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Grid.Row="3" Header="Acceleration">
+            <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.ColumnSpan="7" VerticalAlignment="Center">
+                <TextBox Text="{Binding Acceleration}" Width="100"/>
+                <Button Content="Set" Command="{Binding SetAccelerationCommand}"/>
+            </StackPanel>
+        </GroupBox>
+
+    </Grid>
+</UserControl>

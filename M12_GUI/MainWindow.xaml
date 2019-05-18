@@ -1,0 +1,119 @@
+﻿<Window xmlns:Controls="clr-namespace:M12_GUI.Controls" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:M12_GUI"
+        xmlns:dxc="http://schemas.devexpress.com/winfx/2008/xaml/charts" x:Class="M12_GUI.MainWindow"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+    <Grid DataContext="{Binding Source={StaticResource Locator}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="5"/>
+                </Style>
+            </Grid.Resources>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="COM" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Main.PortNames, Mode=OneWay}" SelectedItem="{Binding Main.SelectedPort, Mode=TwoWay}"/>
+            <Button Grid.Column="2" Content="Connect" Command="{Binding Main.ConnectCommand, Mode=OneWay}" VerticalAlignment="Center"/>
+            <Button Grid.Column="3" Content="Close" Command="{Binding Main.CloseCommand}" VerticalAlignment="Center"/>
+            <Button Grid.Column="4" Content="Refresh" Command="{Binding Main.RefreshPortNamesCommand}" VerticalAlignment="Center"/>
+
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid>
+                <ListView ItemsSource="{Binding Main.Units, Mode=OneWay}" 
+                          SelectedItem="{Binding Main.SelectedUnit, Mode=OneWayToSource}"/>
+            </Grid>
+            <TabControl Grid.Column="1">
+                <TabControl.Items>
+                    <TabItem Header="Unit Control">
+                        <Controls:UnitControlPanel DataContext="{Binding Main.SelectedUnit, Mode=OneWay}"/>
+                    </TabItem>
+                    
+                    <TabItem Header="Fast 1D Align">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Button Content="Start" Command="{Binding Main.RunFast1DCommand, Mode=OneWay}"/>
+                            <dxc:ChartControl Grid.Column="1"  Grid.Row="1" >
+                                <dxc:ChartControl.Legends>
+                                    <dxc:Legend/>
+                                </dxc:ChartControl.Legends>
+                                <dxc:XYDiagram2D>
+                                    <dxc:LineSeries2D DisplayName="Series 1" DataSource="{Binding Main.CurveFast1D}" ArgumentDataMember="X" ValueDataMember="Y"/>
+                                </dxc:XYDiagram2D>
+                            </dxc:ChartControl>
+                        </Grid>
+                    </TabItem>
+                    
+                    <TabItem Header="Blind Search">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Button Content="Start" Command="{Binding Main.RunBlindSearchCommand, Mode=OneWay}"/>
+                            <dxc:Chart3DControl Grid.Row="1">
+                                <dxc:Chart3DControl.Legends>
+                                    <dxc:Legend
+                                        Visible="{Binding ElementName=cbLegend, Path=IsChecked}"
+                                        BorderThickness="0"
+                                        HorizontalPosition="Right"
+                                        VerticalPosition="Top" />
+                                </dxc:Chart3DControl.Legends>
+                                <dxc:Series3DStorage>
+                                    <dxc:Series3D>
+                                        <dxc:SeriesPoint3DDataSourceAdapter
+                                            DataSource="{Binding Main.CurveBlindSearch}"
+                                            XArgumentDataMember="X"
+                                            YArgumentDataMember="Y"
+                                            ValueDataMember="Z" />
+                                        <dxc:Series3D.View>
+                                            <dxc:SurfaceSeriesView VisualizationMode="Grid">
+                                                <dxc:SurfaceSeriesView.FillStyle>
+                                                    <dxc:GradientFillStyle LegendTextPattern="{}{V:F2}">
+                                                        <dxc:GradientFillStyle.ColorStops>
+                                                            <dxc:ColorStop Offset="0%" />
+                                                            <dxc:ColorStop Offset="25%" />
+                                                            <dxc:ColorStop Offset="50%" />
+                                                            <dxc:ColorStop Offset="75%" />
+                                                            <dxc:ColorStop Offset="100%" />
+                                                        </dxc:GradientFillStyle.ColorStops>
+                                                    </dxc:GradientFillStyle>
+                                                </dxc:SurfaceSeriesView.FillStyle>
+                                            </dxc:SurfaceSeriesView>
+                                        </dxc:Series3D.View>
+                                    </dxc:Series3D>
+                                </dxc:Series3DStorage>
+                            </dxc:Chart3DControl>
+                        </Grid>
+                    </TabItem>
+                    
+                </TabControl.Items>
+            </TabControl>
+            
+        </Grid>
+
+    </Grid>
+</Window>
