@@ -9,15 +9,22 @@ namespace M12_GUI.Converter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(bool.TryParse(value.ToString(), out bool ret))
+            if (value != null)
             {
-                if(ret)
+                if (bool.TryParse(value.ToString(), out bool ret))
                 {
-                    return new SolidColorBrush(Colors.ForestGreen);
+                    if (ret)
+                    {
+                        return new SolidColorBrush(Colors.ForestGreen);
+                    }
+                    else
+                    {
+                        return new SolidColorBrush(Colors.LightGray);
+                    }
                 }
                 else
                 {
-                    return new SolidColorBrush(Colors.DimGray);
+                    return new SolidColorBrush(Colors.Red);
                 }
             }
             else

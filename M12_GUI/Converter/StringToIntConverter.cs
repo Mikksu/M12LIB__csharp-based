@@ -12,10 +12,17 @@ namespace M12_GUI.Converter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (int.TryParse(value.ToString(), out int ret))
-                return ret;
+            if (value != null)
+            {
+                if (int.TryParse(value.ToString(), out int ret))
+                    return ret;
+                else
+                    return int.MaxValue;
+            }
             else
+            {
                 return int.MaxValue;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

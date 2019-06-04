@@ -144,11 +144,9 @@
                     <Grid.Resources>
                         <Style TargetType="Button">
                             <Setter Property="Margin" Value="5"/>
+                            <Setter Property="FontSize" Value="14"/>
                             <Setter Property="Command" Value="{Binding Main.SetOutputIO}"/>
-                            <Setter Property="CommandParameter" Value="{Binding Path=Tag, RelativeSource={RelativeSource Mode=Self}, Converter={StaticResource StringToIntConverter}}"/>
-                        </Style>
-                        <Style TargetType="ToggleButton">
-                            <Setter Property="Margin" Value="5"/>
+                            <Setter Property="CommandParameter" Value="{Binding Path=Tag, RelativeSource={RelativeSource Mode=Self}, Mode=OneWay, Converter={StaticResource StringToIntConverter}}"/>
                         </Style>
                     </Grid.Resources>
 
@@ -161,14 +159,14 @@
                     <Button Grid.Column="6" Content="Output 7" Tag="7" Background="{Binding Main.OutputIOStatus[6].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
                     <Button Grid.Column="7" Content="Output 8" Tag="8" Background="{Binding Main.OutputIOStatus[7].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
 
-                    <ToggleButton Grid.Row="1" Grid.Column="0" Content="Input 1" IsChecked="{Binding Main.InputIOStatus[0].IsON}"/>
-                    <ToggleButton Grid.Row="1" Grid.Column="1" Content="Input 2" IsChecked="{Binding Main.InputIOStatus[1].IsON}"/>
-                    <ToggleButton Grid.Row="1" Grid.Column="2" Content="Input 3" IsChecked="{Binding Main.InputIOStatus[2].IsON}"/>
-                    <ToggleButton Grid.Row="1" Grid.Column="3" Content="Input 4" IsChecked="{Binding Main.InputIOStatus[3].IsON}"/>
-                    <ToggleButton Grid.Row="1" Grid.Column="4" Content="Input 5" IsChecked="{Binding Main.InputIOStatus[4].IsON}"/>
-                    <ToggleButton Grid.Row="1" Grid.Column="5" Content="Input 6" IsChecked="{Binding Main.InputIOStatus[5].IsON}"/>
-                    <ToggleButton Grid.Row="1" Grid.Column="6" Content="Input 7" IsChecked="{Binding Main.InputIOStatus[6].IsON}"/>
-                    <ToggleButton Grid.Row="1" Grid.Column="7" Content="Input 8" IsChecked="{Binding Main.InputIOStatus[7].IsON}"/>
+                    <Button Grid.Row="1" Grid.Column="0" Content="Input 1" Background="{Binding Main.InputIOStatus[0].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Row="1" Grid.Column="1" Content="Input 2" Background="{Binding Main.InputIOStatus[1].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Row="1" Grid.Column="2" Content="Input 3" Background="{Binding Main.InputIOStatus[2].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Row="1" Grid.Column="3" Content="Input 4" Background="{Binding Main.InputIOStatus[3].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Row="1" Grid.Column="4" Content="Input 5" Background="{Binding Main.InputIOStatus[4].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Row="1" Grid.Column="5" Content="Input 6" Background="{Binding Main.InputIOStatus[5].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Row="1" Grid.Column="6" Content="Input 7" Background="{Binding Main.InputIOStatus[6].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Row="1" Grid.Column="7" Content="Input 8" Background="{Binding Main.InputIOStatus[7].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
                     <Border Background="#00000000" Grid.Row="1" Grid.ColumnSpan="8"/>
                 </Grid>
                 
