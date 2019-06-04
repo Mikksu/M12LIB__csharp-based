@@ -175,7 +175,7 @@ namespace M12.Tests
         }
 
         [Test]
-        public void DigitalIOTest()
+        public void OutputIOTest()
         {
             using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
             {
@@ -195,6 +195,21 @@ namespace M12.Tests
                 TestContext.WriteLine(sta3);
 
 
+
+                controller.Close();
+            }
+        }
+
+        [Test]
+        public void InputIOTest()
+        {
+            using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
+            {
+                controller.Open();
+
+                var ret = controller.ReadDIN();
+
+                TestContext.WriteLine(ret);
 
                 controller.Close();
             }

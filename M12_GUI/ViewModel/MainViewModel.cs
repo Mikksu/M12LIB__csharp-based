@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace M12_GUI.ViewModel
@@ -31,6 +32,8 @@ namespace M12_GUI.ViewModel
 
         M12.Controller m12;
 
+        CancellationTokenSource cts;
+
         #endregion
 
         /// <summary>
@@ -49,6 +52,39 @@ namespace M12_GUI.ViewModel
 
             PortNames = SerialPort.GetPortNames();
             Units = new ObservableCollection<UnitViewModel>();
+
+            InputIOStatus = new IOStatusViewModel[]
+            {
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel()
+            };
+
+            OutputIOStatus = new IOStatusViewModel[12]
+            {
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel(),
+                new IOStatusViewModel()
+            };
+
         }
 
         #region Properties
@@ -134,9 +170,64 @@ namespace M12_GUI.ViewModel
             }
         } 
 
+        public IOStatusViewModel[] InputIOStatus { get; }
+
+        public IOStatusViewModel[] OutputIOStatus { get; }
+
         public ObservableCollection<Point2D> CurveFast1D { get; } = new ObservableCollection<Point2D>();
 
         public ObservableCollection<Point3D> CurveBlindSearch { get; } = new ObservableCollection<Point3D>();
+
+        #endregion
+
+        #region Methods
+
+        private void StartCaptureInputIOStatus(CancellationToken CancelToken)
+        {
+            Task.Run(() =>
+            {
+                while(true)
+                {
+                    if(m12 != null && m12.IsOpened)
+                    {
+                        try
+                        {
+                            var ret = m12.ReadDIN();
+                            for (int i = 0; i < ret.Integrated.Length; i++)
+                            {
+                                InputIOStatus[i].IsON = ret.Integrated[i] == DigitalIOStatus.ON ? true : false;
+                            }
+                        }
+                        catch(Exception)
+                        {
+
+                        }
+                    }
+
+                    if (CancelToken.IsCancellationRequested)
+                        return;
+
+                    Thread.Sleep(10);
+                }
+            });
+        }
+
+        private void StopCatptureIntputIOStatus()
+        {
+            if (cts != null)
+            {
+                cts.Cancel();
+            }
+        }
+
+        private void __Sync_OutputStatus_to_Button(DigitalOutputStatus Status)
+        {
+            for (int i = 0; i < Status.Integrated.Length; i++)
+            {
+                OutputIOStatus[i].IsON = Status.Integrated[i] == DigitalIOStatus.ON ? true : false;
+            }
+        }
+
 
         #endregion
 
@@ -180,6 +271,12 @@ namespace M12_GUI.ViewModel
                                 FWversion = info.UnitFwInfo[i - 1].FirmwareVersion,
                             });
                         }
+
+                        var stat = m12.ReadDOUT();
+                        __Sync_OutputStatus_to_Button(stat);
+
+                        cts = new CancellationTokenSource();
+                        StartCaptureInputIOStatus(cts.Token);
                     }
                     catch (Exception ex)
                     {
@@ -200,6 +297,8 @@ namespace M12_GUI.ViewModel
                     {
                         if (m12 != null && m12.IsOpened)
                         {
+                            StopCatptureIntputIOStatus();
+
                             m12.Close();
                             Units.Clear();
                         }
@@ -263,6 +362,30 @@ namespace M12_GUI.ViewModel
                         ShowErrorMessageBox(ex.Message);
                     }
 
+                });
+            }
+        }
+
+        public RelayCommand<int> SetOutputIO
+        {
+            get
+            {
+                return new RelayCommand<int>(ch =>
+                {
+                    try
+                    {
+                        var stat = m12.ReadDOUT();
+
+                        m12.SetDOUT((DigitalOutput)ch, stat.Integrated[ch - 1] == DigitalIOStatus.OFF ? DigitalIOStatus.ON : DigitalIOStatus.OFF);
+
+                        stat = m12.ReadDOUT();
+
+                        __Sync_OutputStatus_to_Button(stat);
+                    }
+                    catch(Exception ex)
+                    {
+                        ShowErrorMessageBox(ex.Message);
+                    }
                 });
             }
         }

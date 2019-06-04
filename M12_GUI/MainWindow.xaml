@@ -4,9 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:M12_GUI"
+        xmlns:conv="clr-namespace:M12_GUI.Converter"
         xmlns:dxc="http://schemas.devexpress.com/winfx/2008/xaml/charts" x:Class="M12_GUI.MainWindow"
+        xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <conv:StringToIntConverter x:Key="StringToIntConverter"/>
+        <conv:BoolToSolidColorBrushConverter x:Key="BoolToSolidColorBrushConverter"/>
+    </Window.Resources>
     <Grid DataContext="{Binding Source={StaticResource Locator}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
@@ -43,76 +49,131 @@
                 <ListView ItemsSource="{Binding Main.Units, Mode=OneWay}" 
                           SelectedItem="{Binding Main.SelectedUnit, Mode=OneWayToSource}"/>
             </Grid>
-            <TabControl Grid.Column="1">
-                <TabControl.Items>
-                    <TabItem Header="Unit Control">
-                        <Controls:UnitControlPanel DataContext="{Binding Main.SelectedUnit, Mode=OneWay}"/>
-                    </TabItem>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="100"/>
+                </Grid.RowDefinitions>
+
+                <TabControl>
+                    <TabControl.Items>
+                        <TabItem Header="Unit Control">
+                            <Controls:UnitControlPanel DataContext="{Binding Main.SelectedUnit, Mode=OneWay}"/>
+                        </TabItem>
+
+                        <TabItem Header="Fast 1D Align">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Button Content="Start" Command="{Binding Main.RunFast1DCommand, Mode=OneWay}"/>
+                                <dxc:ChartControl Grid.Column="1"  Grid.Row="1" >
+                                    <dxc:ChartControl.Legends>
+                                        <dxc:Legend/>
+                                    </dxc:ChartControl.Legends>
+                                    <dxc:XYDiagram2D>
+                                        <dxc:LineSeries2D DisplayName="Series 1" DataSource="{Binding Main.CurveFast1D}" ArgumentDataMember="X" ValueDataMember="Y"/>
+                                    </dxc:XYDiagram2D>
+                                </dxc:ChartControl>
+                            </Grid>
+                        </TabItem>
                     
-                    <TabItem Header="Fast 1D Align">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="30"/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Button Content="Start" Command="{Binding Main.RunFast1DCommand, Mode=OneWay}"/>
-                            <dxc:ChartControl Grid.Column="1"  Grid.Row="1" >
-                                <dxc:ChartControl.Legends>
-                                    <dxc:Legend/>
-                                </dxc:ChartControl.Legends>
-                                <dxc:XYDiagram2D>
-                                    <dxc:LineSeries2D DisplayName="Series 1" DataSource="{Binding Main.CurveFast1D}" ArgumentDataMember="X" ValueDataMember="Y"/>
-                                </dxc:XYDiagram2D>
-                            </dxc:ChartControl>
-                        </Grid>
-                    </TabItem>
+                        <TabItem Header="Blind Search">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Button Content="Start" Command="{Binding Main.RunBlindSearchCommand, Mode=OneWay}"/>
+                                <dxc:Chart3DControl Grid.Row="1">
+                                    <dxc:Chart3DControl.Legends>
+                                        <dxc:Legend
+                                            Visible="{Binding ElementName=cbLegend, Path=IsChecked}"
+                                            BorderThickness="0"
+                                            HorizontalPosition="Right"
+                                            VerticalPosition="Top" />
+                                    </dxc:Chart3DControl.Legends>
+                                    <dxc:Series3DStorage>
+                                        <dxc:Series3D>
+                                            <dxc:SeriesPoint3DDataSourceAdapter
+                                                DataSource="{Binding Main.CurveBlindSearch}"
+                                                XArgumentDataMember="X"
+                                                YArgumentDataMember="Y"
+                                                ValueDataMember="Z" />
+                                            <dxc:Series3D.View>
+                                                <dxc:SurfaceSeriesView VisualizationMode="Grid">
+                                                    <dxc:SurfaceSeriesView.FillStyle>
+                                                        <dxc:GradientFillStyle LegendTextPattern="{}{V:F2}">
+                                                            <dxc:GradientFillStyle.ColorStops>
+                                                                <dxc:ColorStop Offset="0%" />
+                                                                <dxc:ColorStop Offset="25%" />
+                                                                <dxc:ColorStop Offset="50%" />
+                                                                <dxc:ColorStop Offset="75%" />
+                                                                <dxc:ColorStop Offset="100%" />
+                                                            </dxc:GradientFillStyle.ColorStops>
+                                                        </dxc:GradientFillStyle>
+                                                    </dxc:SurfaceSeriesView.FillStyle>
+                                                </dxc:SurfaceSeriesView>
+                                            </dxc:Series3D.View>
+                                        </dxc:Series3D>
+                                    </dxc:Series3DStorage>
+                                </dxc:Chart3DControl>
+                            </Grid>
+                        </TabItem>
                     
-                    <TabItem Header="Blind Search">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="30"/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Button Content="Start" Command="{Binding Main.RunBlindSearchCommand, Mode=OneWay}"/>
-                            <dxc:Chart3DControl Grid.Row="1">
-                                <dxc:Chart3DControl.Legends>
-                                    <dxc:Legend
-                                        Visible="{Binding ElementName=cbLegend, Path=IsChecked}"
-                                        BorderThickness="0"
-                                        HorizontalPosition="Right"
-                                        VerticalPosition="Top" />
-                                </dxc:Chart3DControl.Legends>
-                                <dxc:Series3DStorage>
-                                    <dxc:Series3D>
-                                        <dxc:SeriesPoint3DDataSourceAdapter
-                                            DataSource="{Binding Main.CurveBlindSearch}"
-                                            XArgumentDataMember="X"
-                                            YArgumentDataMember="Y"
-                                            ValueDataMember="Z" />
-                                        <dxc:Series3D.View>
-                                            <dxc:SurfaceSeriesView VisualizationMode="Grid">
-                                                <dxc:SurfaceSeriesView.FillStyle>
-                                                    <dxc:GradientFillStyle LegendTextPattern="{}{V:F2}">
-                                                        <dxc:GradientFillStyle.ColorStops>
-                                                            <dxc:ColorStop Offset="0%" />
-                                                            <dxc:ColorStop Offset="25%" />
-                                                            <dxc:ColorStop Offset="50%" />
-                                                            <dxc:ColorStop Offset="75%" />
-                                                            <dxc:ColorStop Offset="100%" />
-                                                        </dxc:GradientFillStyle.ColorStops>
-                                                    </dxc:GradientFillStyle>
-                                                </dxc:SurfaceSeriesView.FillStyle>
-                                            </dxc:SurfaceSeriesView>
-                                        </dxc:Series3D.View>
-                                    </dxc:Series3D>
-                                </dxc:Series3DStorage>
-                            </dxc:Chart3DControl>
-                        </Grid>
-                    </TabItem>
-                    
-                </TabControl.Items>
-            </TabControl>
-            
+                    </TabControl.Items>
+                </TabControl>
+
+                <Grid Grid.Row="1" dx:ThemeManager.ThemeName="null">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Margin" Value="5"/>
+                            <Setter Property="Command" Value="{Binding Main.SetOutputIO}"/>
+                            <Setter Property="CommandParameter" Value="{Binding Path=Tag, RelativeSource={RelativeSource Mode=Self}, Converter={StaticResource StringToIntConverter}}"/>
+                        </Style>
+                        <Style TargetType="ToggleButton">
+                            <Setter Property="Margin" Value="5"/>
+                        </Style>
+                    </Grid.Resources>
+
+                    <Button Grid.Column="0" Content="Output 1" Tag="1" Background="{Binding Main.OutputIOStatus[0].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Column="1" Content="Output 2" Tag="2" Background="{Binding Main.OutputIOStatus[1].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Column="2" Content="Output 3" Tag="3" Background="{Binding Main.OutputIOStatus[2].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Column="3" Content="Output 4" Tag="4" Background="{Binding Main.OutputIOStatus[3].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Column="4" Content="Output 5" Tag="5" Background="{Binding Main.OutputIOStatus[4].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Column="5" Content="Output 6" Tag="6" Background="{Binding Main.OutputIOStatus[5].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Column="6" Content="Output 7" Tag="7" Background="{Binding Main.OutputIOStatus[6].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+                    <Button Grid.Column="7" Content="Output 8" Tag="8" Background="{Binding Main.OutputIOStatus[7].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
+
+                    <ToggleButton Grid.Row="1" Grid.Column="0" Content="Input 1" IsChecked="{Binding Main.InputIOStatus[0].IsON}"/>
+                    <ToggleButton Grid.Row="1" Grid.Column="1" Content="Input 2" IsChecked="{Binding Main.InputIOStatus[1].IsON}"/>
+                    <ToggleButton Grid.Row="1" Grid.Column="2" Content="Input 3" IsChecked="{Binding Main.InputIOStatus[2].IsON}"/>
+                    <ToggleButton Grid.Row="1" Grid.Column="3" Content="Input 4" IsChecked="{Binding Main.InputIOStatus[3].IsON}"/>
+                    <ToggleButton Grid.Row="1" Grid.Column="4" Content="Input 5" IsChecked="{Binding Main.InputIOStatus[4].IsON}"/>
+                    <ToggleButton Grid.Row="1" Grid.Column="5" Content="Input 6" IsChecked="{Binding Main.InputIOStatus[5].IsON}"/>
+                    <ToggleButton Grid.Row="1" Grid.Column="6" Content="Input 7" IsChecked="{Binding Main.InputIOStatus[6].IsON}"/>
+                    <ToggleButton Grid.Row="1" Grid.Column="7" Content="Input 8" IsChecked="{Binding Main.InputIOStatus[7].IsON}"/>
+                    <Border Background="#00000000" Grid.Row="1" Grid.ColumnSpan="8"/>
+                </Grid>
+                
+            </Grid>
+
         </Grid>
 
     </Grid>
