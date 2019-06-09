@@ -83,6 +83,7 @@
     </Compile>
     <Compile Include="Converter\BoolToSolidColorBrushConverter.cs" />
     <Compile Include="Converter\StringToIntConverter.cs" />
+    <Compile Include="ViewModel\AnalogInputViewModel.cs" />
     <Compile Include="ViewModel\IOStatusViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\UnitViewModel.cs" />

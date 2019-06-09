@@ -85,6 +85,18 @@ namespace M12_GUI.ViewModel
                 new IOStatusViewModel()
             };
 
+            AnalogInputValue = new AnalogInputViewModel[8]
+            {
+                new AnalogInputViewModel(),
+                new AnalogInputViewModel(),
+                new AnalogInputViewModel(),
+                new AnalogInputViewModel(),
+                new AnalogInputViewModel(),
+                new AnalogInputViewModel(),
+                new AnalogInputViewModel(),
+                new AnalogInputViewModel()
+            };
+
         }
 
         #region Properties
@@ -174,6 +186,8 @@ namespace M12_GUI.ViewModel
 
         public IOStatusViewModel[] OutputIOStatus { get; }
 
+        public AnalogInputViewModel[] AnalogInputValue { get; }
+
         public ObservableCollection<Point2D> CurveFast1D { get; } = new ObservableCollection<Point2D>();
 
         public ObservableCollection<Point3D> CurveBlindSearch { get; } = new ObservableCollection<Point3D>();
@@ -182,7 +196,7 @@ namespace M12_GUI.ViewModel
 
         #region Methods
 
-        private void StartCaptureInputIOStatus(CancellationToken CancelToken)
+        private void StartBackgroundTask(CancellationToken CancelToken)
         {
             Task.Run(() =>
             {
@@ -202,7 +216,29 @@ namespace M12_GUI.ViewModel
                         {
 
                         }
+
+                        try
+                        {
+                            var ret = m12.ReadADC(
+                                ADCChannels.CH1 | 
+                                ADCChannels.CH2 | 
+                                ADCChannels.CH3 | 
+                                ADCChannels.CH4 | 
+                                ADCChannels.CH5 | 
+                                ADCChannels.CH6 | 
+                                ADCChannels.CH7 | 
+                                ADCChannels.CH8);
+                            for (int i = 0; i < 8; i++)
+                            {
+                                this.AnalogInputValue[i].Value = ret[i];
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
                     }
+
 
                     if (CancelToken.IsCancellationRequested)
                         return;
@@ -276,7 +312,7 @@ namespace M12_GUI.ViewModel
                         __Sync_OutputStatus_to_Button(stat);
 
                         cts = new CancellationTokenSource();
-                        StartCaptureInputIOStatus(cts.Token);
+                        StartBackgroundTask(cts.Token);
                     }
                     catch (Exception ex)
                     {
@@ -306,6 +342,10 @@ namespace M12_GUI.ViewModel
                     catch(Exception ex)
                     {
                         ShowErrorMessageBox(ex.Message);
+                    }
+                    finally
+                    {
+                        m12 = null;
                     }
                 });
             }

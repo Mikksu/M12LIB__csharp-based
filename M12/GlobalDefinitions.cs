@@ -97,7 +97,7 @@ namespace M12.Definitions
         CH5 = (1 << 4),
         CH6 = (1 << 5),
         CH7 = (1 << 6),
-        CH8 = (1 << 7),
+        CH8 = (1 << 7)
     }
 
     public enum ADC_OSR

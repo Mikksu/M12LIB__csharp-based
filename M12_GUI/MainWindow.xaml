@@ -34,7 +34,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="COM" VerticalAlignment="Center"/>
-            <ComboBox Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Main.PortNames, Mode=OneWay}" SelectedItem="{Binding Main.SelectedPort, Mode=TwoWay}"/>
+            <ComboBox Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Main.PortNames, Mode=OneWay}" SelectedItem="{Binding Main.SelectedPort, Mode=TwoWay,Delay=10}"/>
             <Button Grid.Column="2" Content="Connect" Command="{Binding Main.ConnectCommand, Mode=OneWay}" VerticalAlignment="Center"/>
             <Button Grid.Column="3" Content="Close" Command="{Binding Main.CloseCommand}" VerticalAlignment="Center"/>
             <Button Grid.Column="4" Content="Refresh" Command="{Binding Main.RefreshPortNamesCommand}" VerticalAlignment="Center"/>
@@ -130,6 +130,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition Height="30"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
@@ -147,6 +148,10 @@
                             <Setter Property="FontSize" Value="14"/>
                             <Setter Property="Command" Value="{Binding Main.SetOutputIO}"/>
                             <Setter Property="CommandParameter" Value="{Binding Path=Tag, RelativeSource={RelativeSource Mode=Self}, Mode=OneWay, Converter={StaticResource StringToIntConverter}}"/>
+                        </Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Margin" Value="5"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
                         </Style>
                     </Grid.Resources>
 
@@ -168,6 +173,15 @@
                     <Button Grid.Row="1" Grid.Column="6" Content="Input 7" Background="{Binding Main.InputIOStatus[6].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
                     <Button Grid.Row="1" Grid.Column="7" Content="Input 8" Background="{Binding Main.InputIOStatus[7].IsON, Converter={StaticResource BoolToSolidColorBrushConverter}}"/>
                     <Border Background="#00000000" Grid.Row="1" Grid.ColumnSpan="8"/>
+
+                    <TextBox Grid.Row="2" Grid.Column="0" IsReadOnly="True" Text="{Binding Main.AnalogInputValue[0].Value, Mode=OneWay, StringFormat={}{0:F3}mV}"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" IsReadOnly="True" Text="{Binding Main.AnalogInputValue[1].Value, Mode=OneWay, StringFormat={}{0:F3}mV}"/>
+                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding Main.AnalogInputValue[2].Value, Mode=OneWay, StringFormat={}{0:F3}mV}"/>
+                    <TextBox Grid.Row="2" Grid.Column="3" IsReadOnly="True" Text="{Binding Main.AnalogInputValue[3].Value, Mode=OneWay, StringFormat={}{0:F3}mV}"/>
+                    <TextBox Grid.Row="2" Grid.Column="4" IsReadOnly="True" Text="{Binding Main.AnalogInputValue[4].Value, Mode=OneWay, StringFormat={}{0:F3}mV}"/>
+                    <TextBox Grid.Row="2" Grid.Column="5" IsReadOnly="True" Text="{Binding Main.AnalogInputValue[5].Value, Mode=OneWay, StringFormat={}{0:F3}mV}"/>
+                    <TextBox Grid.Row="2" Grid.Column="6" IsReadOnly="True" Text="{Binding Main.AnalogInputValue[6].Value, Mode=OneWay, StringFormat={}{0:F3}mV}"/>
+                    <TextBox Grid.Row="2" Grid.Column="7" IsReadOnly="True" Text="{Binding Main.AnalogInputValue[7].Value, Mode=OneWay, StringFormat={}{0:F3}mV}"/>
                 </Grid>
                 
             </Grid>
