@@ -235,7 +235,7 @@ namespace M12.Tests
             {
                 controller.Open();
 
-                controller.Home(TestUnit1, 500, 5, 20);
+                controller.Home(TestUnit1, 5, 20);
 
                 controller.Close();
             }

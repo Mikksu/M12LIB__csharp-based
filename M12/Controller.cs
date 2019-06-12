@@ -360,8 +360,11 @@ namespace M12
         /// <summary>
         /// Home the specified channel.
         /// </summary>
-        /// <param name="UnitID"></param>
-        public void Home(UnitID UnitID, ushort Acc = 500, byte LowSpeed = 5, byte HighSpeed = 5)
+        /// <param name="UnitID">ID of Unit</param>
+        /// <param name="LowSpeed">The speed of stage 2</param>
+        /// <param name="HighSpeed">The speed of stage 1</param>
+        /// <param name="Acc"></param>
+        public void Home(UnitID UnitID, byte LowSpeed = 5, byte HighSpeed = 5, ushort Acc = 500)
         {
             Errors err = Errors.ERR_NONE;
 
