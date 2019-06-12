@@ -1067,6 +1067,8 @@ namespace M12
                     if (Package.IsPackageFound)
                         break;
                 }
+
+                Thread.Sleep(1);
             }
 
             if (Package.IsPassCRC == false)
