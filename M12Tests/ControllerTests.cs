@@ -13,9 +13,9 @@ namespace M12.Tests
     [TestFixture()]
     public class ControllerTests
     {
-        const string PORT_NAME = "COM16";
+        const string PORT_NAME = "COM6";
         const int BAUDRATE = 115200;
-        const UnitID TestUnit1 = UnitID.U2;
+        const UnitID TestUnit1 = UnitID.U1;
         const UnitID TestUnit2 = UnitID.U3;
 
         const CSSCH TestCSS = CSSCH.CH2;
@@ -362,7 +362,9 @@ namespace M12.Tests
 
                 controller.Home(TestUnit1);
 
-                controller.StartFast1D(TestUnit1, 1000, 5, 20, ADCChannels.CH3, out List<Point2D> values, ADCChannels.CH4, out List<Point2D> values2);
+                controller.Move(TestUnit1, 100000, 100);
+
+                controller.StartFast1D(TestUnit1, 10000, 20, 20, ADCChannels.CH3, out List<Point2D> values, ADCChannels.CH4, out List<Point2D> values2);
 
                 TestContext.WriteLine($"{values.Count} values read.");
 

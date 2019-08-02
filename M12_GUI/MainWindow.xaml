@@ -68,8 +68,42 @@
                                     <RowDefinition Height="30"/>
                                     <RowDefinition/>
                                 </Grid.RowDefinitions>
-                                <Button Content="Start" Command="{Binding Main.RunFast1DCommand, Mode=OneWay}"/>
-                                <dxc:ChartControl Grid.Column="1"  Grid.Row="1" >
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50"/>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="50"/>
+                                        <ColumnDefinition Width="50"/>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Margin" Value="0,0,5,0"/>
+                                        </Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                        </Style>
+                                    </Grid.Resources>
+                                    <TextBlock Grid.Column="0" Text="Range"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Main.Fast1D_Range}"/>
+                                    <TextBlock Grid.Column="2" Text="Interval"/>
+                                    <TextBox Grid.Column="3" Text="{Binding Main.Fast1D_Interval}"/>
+                                    <TextBlock Grid.Column="4" Text="Speed"/>
+                                    <TextBox Grid.Column="5" Text="{Binding Main.Fast1D_Speed}"/>
+                                    <TextBlock Grid.Column="6" Text="Analog CH"/>
+                                    <ComboBox Grid.Column="7" VerticalAlignment="Center"/>
+                                    <Button Grid.Column="8" Content="Start" 
+                                            Margin="10,0,0,0"
+                                            Command="{Binding Main.RunFast1DCommand, Mode=OneWay}" VerticalAlignment="Center"/>
+                                </Grid>
+                                <dxc:ChartControl Grid.Row="1" >
                                     <dxc:ChartControl.Legends>
                                         <dxc:Legend/>
                                     </dxc:ChartControl.Legends>

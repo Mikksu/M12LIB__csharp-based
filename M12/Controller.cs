@@ -425,7 +425,7 @@ namespace M12
 
             try
             {
-                err = WaitByUnitState(UnitID, 5);
+                err = WaitByUnitState(UnitID, 50);
             }
             catch(TimeoutException ex)
             {
@@ -464,7 +464,7 @@ namespace M12
 
             try
             {
-                err = WaitByUnitState(UnitID, 5);
+                err = WaitByUnitState(UnitID, 50);
             }
             catch (TimeoutException ex)
             {
@@ -504,7 +504,7 @@ namespace M12
 
             try
             {
-                err = WaitByUnitState(UnitID, 5);
+                err = WaitByUnitState(UnitID, 100);
             }
             catch (TimeoutException ex)
             {
@@ -587,7 +587,6 @@ namespace M12
             ScanResults2 = null;
             if(AnalogCapture2 != 0)
                 ScanResults2 = new List<Point2D>();
-
 
             ConfigADCTrigger(AnalogCapture | AnalogCapture2);
 
@@ -910,26 +909,32 @@ namespace M12
             lock (lockController)
             {
                 Send(new CommandReadMemory(Offset, LengthToRead));
+                Read(out package, CancellationToken.None);
 
-
-                // continue to read all blocks.
-                while (true)
+                MemoryBlock block = new MemoryBlock(package.Payload);
+                foreach (var val in block.Values)
                 {
-                    Read(out package, CancellationToken.None);
-
-                    MemoryBlock block = new MemoryBlock(package.Payload);
-
-                    if (block.Length == 0) // the last block has received.
-                        break;
-                    else
-                    {
-                        foreach(var val in block.Values)
-                        {
-                            raw.Add(ConvertADCRawTomV(val));
-                        }
-                    }
-
+                    raw.Add(ConvertADCRawTomV(val));
                 }
+
+                //// continue to read all blocks.
+                //while (true)
+                //{
+                //    Read(out package, CancellationToken.None);
+
+                //    MemoryBlock block = new MemoryBlock(package.Payload);
+
+                //    if (block.Length == 0) // the last block has received.
+                //        break;
+                //    else
+                //    {
+                //        foreach(var val in block.Values)
+                //        {
+                //            raw.Add(ConvertADCRawTomV(val));
+                //        }
+                //    }
+
+                //}
             }
 
             return raw;
@@ -969,7 +974,7 @@ namespace M12
                     if (retry > 3)
                         throw ex;
                     else
-                        Thread.Sleep(100);
+                        Thread.Sleep(5);
                 }
             }
 
@@ -1060,20 +1065,30 @@ namespace M12
                     throw new OperationCanceledException("operation has cancelled.");
 
                 // if one or more bytes are received, push to RxPackageParser.
-                if (port.BytesToRead > 0)
+                var len = port.BytesToRead;
+                if (len > 0)
                 {
-                    var data = (byte)port.ReadByte();
-                    Package.AddData(data);
+                    byte[] data = new byte[len];
+                    port.Read(data, 0, len);
+
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        Package.AddData(data[i]);
+
+                        if (Package.IsPackageFound)
+                        {
+                            break;
+                        }
+                    }
+
                     if (Package.IsPackageFound)
                         break;
                 }
-
-                Thread.Sleep(1);
             }
 
             if (Package.IsPassCRC == false)
             {
-                throw new Exception("incorrect CRC value.");
+                throw new Exception("the CRC of the package is error.");
             }
         }
 

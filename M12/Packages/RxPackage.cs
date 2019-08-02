@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using STM32F407;
+using System;
 using System.IO;
-using STM32F407;
 
 namespace M12.Packages
 {
@@ -10,7 +9,7 @@ namespace M12.Packages
         const int MAX_BUFFER_SIZE = 256;
         const byte HEADER = 0x7E;
         const byte API_IDENTIFIER_DATA = 0x69;
-        const int SIZE_HEADER = 1;
+        const int SIZE_HEADER = 1; 
         const int SIZE_LENGTH = 2;
         const int SIZE_API_ID = 1;
         const int SIZE_FRAME_ID = 2;
@@ -62,6 +61,10 @@ namespace M12.Packages
         
         #region Methods
 
+        /// <summary>
+        /// Add 1 byte to the buffer.
+        /// </summary>
+        /// <param name="data"></param>
         public void AddData(byte data)
         {
             if (data == HEADER && IsHeaderReceived == false)

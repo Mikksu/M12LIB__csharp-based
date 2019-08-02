@@ -284,7 +284,7 @@ namespace M12_GUI.ViewModel
                     {
                         await Task.Run(() =>
                         {
-                            M12.Home(this.ID, 5, 50, 2000);
+                            M12.Home(this.ID, 5, 5, 2000);
                         });
                     }
                     catch (Exception ex)

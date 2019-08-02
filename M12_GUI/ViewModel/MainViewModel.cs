@@ -188,6 +188,13 @@ namespace M12_GUI.ViewModel
 
         public AnalogInputViewModel[] AnalogInputValue { get; }
 
+
+        public int Fast1D_Range { get; set; } = 10000;
+
+        public int Fast1D_Interval { get; set; } = 50;
+
+        public int Fast1D_Speed { get; set; } = 100;
+
         public ObservableCollection<Point2D> CurveFast1D { get; } = new ObservableCollection<Point2D>();
 
         public ObservableCollection<Point3D> CurveBlindSearch { get; } = new ObservableCollection<Point3D>();
@@ -360,18 +367,30 @@ namespace M12_GUI.ViewModel
                     try
                     {
                         CurveFast1D.Clear();
-                        m12.StartFast1D(M12.Definitions.UnitID.U2, 10000, 10, 20, M12.Definitions.ADCChannels.CH2, out List<Point2D> RetValues);
-                        m12.Move(M12.Definitions.UnitID.U2, -10000, 20);
-                        foreach(var point in RetValues)
+
+                        cts.Cancel();
+                        Thread.Sleep(10);
+
+                        m12.Move(this.SelectedUnit.ID, -this.Fast1D_Range / 2, (byte)Fast1D_Speed);
+                        m12.StartFast1D(this.SelectedUnit.ID, Fast1D_Range, (ushort)Fast1D_Interval, (byte)Fast1D_Speed, M12.Definitions.ADCChannels.CH3, out List<Point2D> RetValues);
+                        m12.Move(this.SelectedUnit.ID, -this.Fast1D_Range / 2, (byte)Fast1D_Speed);
+
+                        foreach (var point in RetValues)
                         {
                             CurveFast1D.Add(point);
                         }
+
+
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ShowErrorMessageBox(ex.Message);
                     }
-
+                    finally
+                    {
+                        cts = new CancellationTokenSource();
+                        StartBackgroundTask(cts.Token);
+                    }
                 });
             }
         }

@@ -62,6 +62,7 @@ namespace M12.Definitions
         ERR_SYS_PARAM,
         ERR_SYS_CSS1_Triggered,
         ERR_SYS_CSS2_Triggered,
+        ERR_SYS_ADC_BUSY,
         ERR_SYS_BLINDSEARCH,
 
         // NOTE the following errors are only defined in PC side!
