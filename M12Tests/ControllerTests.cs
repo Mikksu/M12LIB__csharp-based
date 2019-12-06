@@ -13,12 +13,12 @@ namespace M12.Tests
     [TestFixture()]
     public class ControllerTests
     {
-        const string PORT_NAME = "COM6";
+        const string PORT_NAME = "COM12";
         const int BAUDRATE = 115200;
         const UnitID TestUnit1 = UnitID.U1;
         const UnitID TestUnit2 = UnitID.U3;
 
-        const CSSCH TestCSS = CSSCH.CH2;
+        const CSSCH TestCSS = CSSCH.CH1;
 
         [Test]
         public void GetSystemInfoTest()
@@ -84,18 +84,19 @@ namespace M12.Tests
         }
 
         [Test]
-        public void CapabilityOfCSSINTTest()
+        public void  CapabilityOfCSSINTTest()
         {
             using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
             {
                 controller.Open();
 
                 controller.Home(TestUnit1);
+                controller.Move(TestUnit1, 50000, 100);
 
                 var adc_val = controller.ReadADC(ADCChannels.CH1);
                 TestContext.WriteLine($"V_CSS1 before TOUCHED: {adc_val[0]}mV");
 
-                controller.SetCSSThreshold(TestCSS, 1000, 3000);
+                controller.SetCSSThreshold(TestCSS, 1000, 1800);
 
                 for (int i = 0; i < 5; i++)
                 {
@@ -110,15 +111,15 @@ namespace M12.Tests
                         TestContext.WriteLine(ex.Message);
                     }
 
-                    try
-                    {
-                        controller.SetCSSEnable(TestCSS, true);
-                        controller.Move(TestUnit1, -10000, 5);
-                    }
-                    catch (Exception ex)
-                    {
-                        TestContext.WriteLine(ex.Message);
-                    }
+                    //try
+                    //{
+                    //    controller.SetCSSEnable(TestCSS, true);
+                    //    controller.Move(TestUnit1, -10000, 5);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    TestContext.WriteLine(ex.Message);
+                    //}
 
                     adc_val = controller.ReadADC(ADCChannels.CH1);
                     TestContext.WriteLine($"V_CSS1 after TOUCHED: {adc_val[0]}mV");
