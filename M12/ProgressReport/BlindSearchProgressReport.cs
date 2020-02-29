@@ -16,7 +16,7 @@ namespace M12.ProgressReport
             SCAN,
 
             /// <summary>
-            /// Data transferring stage
+            /// Data transmitting stage
             /// </summary>
             TRANS
         }

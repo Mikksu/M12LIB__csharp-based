@@ -13,8 +13,10 @@ using M12.Packages;
 using M12.ProgressReport;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
+using System.Linq;
 using System.Threading;
 
 namespace M12
@@ -661,7 +663,7 @@ namespace M12
                 Send(new CommandBlindSearch(HorizontalArgs, VerticalArgs));
             }
                         
-            var err = WaitBySystemState(200, 120000);
+            var err = WaitBySystemState(200, 120000, new List<UnitID>() { HorizontalArgs.Unit, VerticalArgs.Unit });
 
             if (err.Error != Errors.ERR_NONE)
             {
@@ -669,7 +671,6 @@ namespace M12
             }
             else
             {
-
                 //var values = new List<double>(new double[100000]);
                 // read the sampling points from the memory.
                 var adcValues = ReadMemoryAll(new Progress<MemoryReadProgressReport>(e =>
@@ -1112,7 +1113,7 @@ namespace M12
         /// <returns></returns>
         public Errors WaitByUnitState(UnitID UnitID, int LoopInterval = 100, int Timeout = DEFAULT_WAIT_BUSY_TIMEOUT)
         {
-            DateTime startTime = DateTime.Now;
+            Stopwatch sw = new Stopwatch();
             UnitState state = null;
 
             int _lastPosition = 0;
@@ -1121,24 +1122,25 @@ namespace M12
 
             while (true)
             {
+                sw.Restart();
+
                 state = GetUnitState(UnitID);
 
-                // if the absposition is changed, reset the timeout clock.
+                // if the abs-position is changed, reset the timeout clock.
                 if (state.AbsPosition != _lastPosition)
                 {
-                    startTime = DateTime.Now;
+                    sw.Restart();
                     _lastPosition = state.AbsPosition;
                 }
 
-                var curr_time = DateTime.Now;
-                
                 // raise event after the unit state updated.
                 unitStateChangedProgress.Report(state);
                 
                 if (state.IsBusy == false)
                     break;
 
-                if ((curr_time - startTime).TotalMilliseconds > Timeout)
+                sw.Stop();
+                if (sw.Elapsed.TotalMilliseconds > Timeout)
                     throw new TimeoutException("it's timeout to wait the long-duration-operation.");
 
                 Thread.Sleep(LoopInterval);
@@ -1154,33 +1156,63 @@ namespace M12
         /// <param name="ct"></param>
         /// <param name="LoopInterval"></param>
         /// <param name="Timeout"></param>
+        /// <param name="PositionRefreshingList">The list contains the axes whose position needs to be updated in real time.</param>
         /// <returns></returns>
-        public SystemLastError WaitBySystemState(int LoopInterval = 100, int Timeout = DEFAULT_WAIT_BUSY_TIMEOUT)
+        public SystemLastError WaitBySystemState(int LoopInterval = 100, int Timeout = DEFAULT_WAIT_BUSY_TIMEOUT, IEnumerable<UnitID> PositionRefreshingList = null)
         {
-            DateTime startTime = DateTime.Now;
+            Stopwatch sw = new Stopwatch();
             SystemState state = null;
 
             Thread.Sleep(50);
 
             while (true)
             {
+                sw.Restart();
+
                 state = GetSystemState();
                 if (state.IsSystemBusy == false)
                     break;
 
-                //if (ct != CancellationToken.None && ct.IsCancellationRequested)
-                //    return new SystemLastError(UnitID.INVALID, Errors.ERR_OPERATION_CANCELLED);
-
-                if ((DateTime.Now - startTime).TotalMilliseconds > Timeout)
+                sw.Stop();
+                if (sw.Elapsed.TotalMilliseconds > Timeout)
                     return new SystemLastError(UnitID.INVALID, Errors.ERR_TIMEOUT);
 
+                //! adding delay here to ensure to get the latest state(position).
                 Thread.Sleep(LoopInterval);
+
+                //! update the real-time abs-position if the list is not null.
+                //! 2020/2//29 
+                // An issue is found that the latest abs-position is not synced after 
+                // the blind-search done since there are NO processes to read the position
+                // back.
+                if (PositionRefreshingList != null)
+                {
+                    PositionRefreshingList.ToList().ForEach(unitId =>
+                    {
+
+                        try
+                        {
+                            var unitState = GetUnitState(unitId);
+                            unitStateChangedProgress.Report(unitState);
+                        }
+                        catch(Exception ex)
+                        {
+                            throw new Exception($"unable to read the unit position.", ex);
+                        }
+                        finally
+                        {
+                            Thread.Sleep(10);
+                        }
+
+                    });
+                }
 
             }
 
             var err = GetLastError();
             return err;
         }
+
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
