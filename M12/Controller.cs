@@ -14,6 +14,7 @@ using M12.ProgressReport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -568,7 +569,7 @@ namespace M12
         }
 
         /// <summary>
-        /// Perform the fast-1D alignment with two analog capture channel actived.
+        /// Perform the fast-1D alignment with two analog capture channel activated.
         /// </summary>
         /// <param name="Unit"></param>
         /// <param name="Range"></param>
@@ -579,10 +580,12 @@ namespace M12
         public void StartFast1D(UnitID Unit, int Range, ushort Interval, byte Speed, ADCChannels AnalogCapture, out List<Point2D> ScanResults, ADCChannels AnalogCapture2, out List<Point2D> ScanResults2)
         {
             if(GlobalDefinition.NumberOfSetBits((int)AnalogCapture) != 1) 
-                throw new ArgumentException($"specify ONLY one channel allowed for the analog capture.");
+                throw new ArgumentException($"only 1 analog capture channel is allowed.", nameof(AnalogCapture));
 
             if(GlobalDefinition.NumberOfSetBits((int)AnalogCapture2) > 1)
-                throw new ArgumentException($"specify ONLY one channel allowed for the analog capture 2, or disable it.");
+                throw new ArgumentException($"only 1 analog capture channel is allowed.", nameof(AnalogCapture2));
+
+            int dir = Range < 0 ? -1 : 1;
 
             ScanResults = new List<Point2D>();
 
@@ -617,7 +620,7 @@ namespace M12
                         ScanResults2.Add(new Point2D(x, adcValues[indexOfAdcValues++]));
                 }
 
-                x += Interval;
+                x += (dir * Interval);
 
                 if (Math.Abs(x) >= Math.Abs(Range))
                 {
@@ -643,13 +646,13 @@ namespace M12
 
             // check argments.
             if(GlobalDefinition.NumberOfSetBits((int)AdcUsed) != 1)
-                throw new ArgumentException($"specify ONLY one channel of the ADC to capture the analog signal.");
+                throw new ArgumentException($"only 1 analog capture channel is allowed.", nameof(AdcUsed));
 
             if (HorizontalArgs.Gap < HorizontalArgs.Interval)
-                throw new ArgumentException($"the capture interval of {HorizontalArgs.Unit} shoud be less than the value of the gap.");
+                throw new ArgumentException($"the capture interval of {HorizontalArgs.Unit} should be less than the gap.");
 
             if (VerticalArgs.Gap < VerticalArgs.Interval)
-                throw new ArgumentException($"the capture interval of {VerticalArgs.Unit} shoud be less than the value of the gap.");
+                throw new ArgumentException($"the capture interval of {VerticalArgs.Unit} should be less than the gap.");
 
             ScanResults = new List<Point3D>();
 
@@ -784,18 +787,46 @@ namespace M12
         /// <param name="ScanResults"></param>
         public void StartSnakeSearch(SnakeSearchArgs Args, ADCChannels AdcUsed, out List<Point3D> ScanResults)
         {
-            //! The memory is cleared automatically, you don't have to clear it manually.
+            //! The memory is cleared automatically, you don't need to clear it manually.
 
-            // check argments.
+            // validate arguments.
             if (GlobalDefinition.NumberOfSetBits((int)AdcUsed) != 1)
-                throw new ArgumentException($"specify ONLY one channel of the ADC to capture the analog signal.");
+                throw new ArgumentException($"only 1 analog capture channel is allowed.", nameof(AdcUsed));
 
-            if (Args.Gap < Args.Interval)
-                throw new ArgumentException($"the capture interval shoud be less than the value of the gap.");
+            if (Args.Gap < Args.SamplingInterval)
+                throw new ArgumentException($"the interval should be less than the gap.", nameof(Args));
 
             ScanResults = new List<Point3D>();
 
+            var hHalfRange = Args.HorizontalRange / 2;
+            var vHalfRange = Args.VerticalRange / 2;
+            Point pointNow ;
+
             ConfigADCTrigger(AdcUsed);
+
+            // move to the start point if necessary.
+            if(Args.IsStartFromCenter)
+            {
+                if(Args.IsFlipHorizontalScanDirection)
+                    Move(Args.HorizontalAxis, hHalfRange, Args.Speed);
+                else
+                    Move(Args.HorizontalAxis, -hHalfRange, Args.Speed);
+
+                if (Args.IsFlipVertialScanDirection)
+                    Move(Args.VerticalAxis, vHalfRange, Args.Speed);
+                else
+                    Move(Args.VerticalAxis, -vHalfRange, Args.Speed);
+
+                pointNow = new Point(-hHalfRange, -vHalfRange);
+            }
+            else
+            {
+                pointNow = new Point(0, 0);
+            }
+
+            // start to scan...
+            //TODO to be completed!
+            
 
             lock (lockController)
             {
@@ -829,15 +860,15 @@ namespace M12
                     else
                         ScanResults.Add(new Point3D(x, y, adcValues[indexOfAdcValues]));
 
-                    x += Args.Interval * direction;
+                    x += Args.SamplingInterval * direction;
 
                     if (x < 0)
                     {
                         x = 0;
                     }
-                    else if (x > Args.HorizonalRange)
+                    else if (x > Args.HorizontalRange)
                     {
-                        x = Args.HorizonalRange;
+                        x = Args.HorizontalRange;
                     }
                     else
                     {

@@ -32,12 +32,12 @@ namespace M12.Commands.Alignment
             {
                 using (BinaryWriter wr = new BinaryWriter(stream))
                 {
-                    wr.Write((byte)Args.HorizonalAxis);
-                    wr.Write(Args.HorizonalRange);
+                    wr.Write((byte)Args.HorizontalAxis);
+                    wr.Write(Args.HorizontalRange);
                     wr.Write((byte)Args.VerticalAxis);
                     wr.Write(Args.VerticalRange);
                     wr.Write(Args.Gap);
-                    wr.Write(Args.Interval);
+                    wr.Write(Args.SamplingInterval);
                     wr.Write(Args.Speed);
                 }
 

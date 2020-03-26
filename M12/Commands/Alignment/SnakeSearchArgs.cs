@@ -9,15 +9,15 @@ namespace M12.Commands.Alignment
 
         public SnakeSearchArgs() { }
 
-        public SnakeSearchArgs(UnitID HAxis, int HRange, UnitID VAxis, 
+        public SnakeSearchArgs(UnitID HAxis, int HRange, UnitID VAxis,
             int VRange, uint Gap, ushort Interval, byte Speed)
         {
-            this.HorizonalAxis = HAxis;
-            this.HorizonalRange = HRange;
+            this.HorizontalAxis = HAxis;
+            this.HorizontalRange = HRange;
             this.VerticalAxis = VAxis;
             this.VerticalRange = VRange;
             this.Gap = Gap;
-            this.Interval = Interval;
+            this.SamplingInterval = Interval;
             this.Speed = Speed;
         }
 
@@ -25,9 +25,9 @@ namespace M12.Commands.Alignment
 
         #region Properties
 
-        public UnitID HorizonalAxis { get; set; }
+        public UnitID HorizontalAxis { get; set; }
 
-        public int HorizonalRange { get; set; }
+        public int HorizontalRange { get; set; }
 
         public UnitID VerticalAxis { get; set; }
 
@@ -35,9 +35,26 @@ namespace M12.Commands.Alignment
 
         public uint Gap { get; set; }
 
-        public ushort Interval { get; set; }
+        public ushort SamplingInterval { get; set; }
 
         public byte Speed { get; set; }
+
+        /// <summary>
+        /// If true, the starting point will be the center of the scan area, 
+        /// which means that the both horizontal and vertical axes are shifted by 
+        /// -range/2 before scanning.
+        /// </summary>
+        public bool IsStartFromCenter { get; set; } = true;
+
+        /// <summary>
+        /// If true, move the horizontal axis in the negative direction in the scanning process.
+        /// </summary>
+        public bool IsFlipHorizontalScanDirection { get; set; } = false;
+
+        /// <summary>
+        /// If true, move the vertical axis in the negative direction in the scanning process.
+        /// </summary>
+        public bool IsFlipVertialScanDirection { get; set; } = false;
 
         #endregion
     }
