@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace M12.Excpections
+namespace M12.Exceptions
 {
     /// <summary>
     /// <para>This exception is especially used in the fast alignement handler.</para>

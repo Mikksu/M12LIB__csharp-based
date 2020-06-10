@@ -58,11 +58,11 @@
     <Compile Include="Commands\IO\CommandReadDOUT.cs" />
     <Compile Include="Commands\Motion\CommandFastMove.cs" />
     <Compile Include="CustomizedAttribute\CommandIndexAttribute.cs" />
-    <Compile Include="Excpections\ADCSamplingPointMissException.cs" />
-    <Compile Include="Excpections\SystemErrorException.cs" />
+    <Compile Include="Exceptions\ADCSamplingPointMissException.cs" />
+    <Compile Include="Exceptions\SystemErrorException.cs" />
     <Compile Include="Base\SystemLastError.cs" />
     <Compile Include="Base\SystemState.cs" />
-    <Compile Include="Excpections\UnitErrorException.cs" />
+    <Compile Include="Exceptions\UnitErrorException.cs" />
     <Compile Include="Base\UnitState.cs" />
     <Compile Include="Commands\Analog\CommandReadADC.cs" />
     <Compile Include="Commands\General\CommandConfigADCTrigger.cs" />
