@@ -7,7 +7,7 @@ using M12.Commands.Memory;
 using M12.Commands.Motion;
 using M12.Definitions;
 using M12.Exceptions;
-fCorrusing M12.Interfaces;
+using M12.Interfaces;
 using M12.Packages;
 using M12.ProgressReport;
 using System;
