@@ -174,7 +174,7 @@ namespace M12_GUI.ViewModel
                     _selectedUnit.IsDetectTimmingSignal = settings.IsDetectTimming;
                     _selectedUnit.LSActiveLevel = settings.LimitSensorActiveLevel;
                     _selectedUnit.IsFlipIOActiveLevel = settings.IsFlipIOActiveLevel;
-
+                    _selectedUnit.Acceleration = settings.GeneralAcceleration;
                 }
 
 

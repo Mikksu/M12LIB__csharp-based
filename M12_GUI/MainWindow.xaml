@@ -8,7 +8,7 @@
         xmlns:dxc="http://schemas.devexpress.com/winfx/2008/xaml/charts" x:Class="M12_GUI.MainWindow"
         xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="500" Width="800" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <conv:StringToIntConverter x:Key="StringToIntConverter"/>
         <conv:BoolToSolidColorBrushConverter x:Key="BoolToSolidColorBrushConverter"/>
