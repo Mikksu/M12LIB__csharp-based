@@ -628,8 +628,9 @@ namespace M12
             }
             
             // ran too fast, some ADC value missed.
-            if (ScanResults.Count * Interval != Math.Abs(Range))
-                throw new ADCSamplingPointMissException((int)Math.Ceiling((decimal)Range / Interval),  ScanResults.Count);
+            var pointsDesired = (int) Math.Ceiling((decimal) Range / Interval);
+            if (pointsDesired != ScanResults.Count)
+                throw new ADCSamplingPointMissException(pointsDesired,  ScanResults.Count);
         }
 
         /// <summary>
