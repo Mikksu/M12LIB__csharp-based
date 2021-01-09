@@ -4,6 +4,7 @@ using M12.Definitions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static M12.Base.UnitSettings;
@@ -93,17 +94,17 @@ namespace M12.Tests
                 controller.Home(TestUnit1);
                 controller.Move(TestUnit1, 50000, 100);
 
-                var adc_val = controller.ReadADC(ADCChannels.CH1);
+                var adc_val = controller.ReadAdc(ADCChannels.CH1);
                 TestContext.WriteLine($"V_CSS1 before TOUCHED: {adc_val[0]}mV");
 
-                controller.SetCSSThreshold(TestCSS, 1000, 1800);
+                controller.SetCssThreshold(TestCSS, 1000, 1800);
 
                 for (int i = 0; i < 5; i++)
                 {
                     TestContext.WriteLine($"Cycle {i + 1}"); ;
                     try
                     {
-                        controller.SetCSSEnable(TestCSS, true);
+                        controller.SetCssEnable(TestCSS, true);
                         controller.Move(TestUnit1, 10000, 5);
                     }
                     catch (Exception ex)
@@ -121,7 +122,7 @@ namespace M12.Tests
                     //    TestContext.WriteLine(ex.Message);
                     //}
 
-                    adc_val = controller.ReadADC(ADCChannels.CH1);
+                    adc_val = controller.ReadAdc(ADCChannels.CH1);
                     TestContext.WriteLine($"V_CSS1 after TOUCHED: {adc_val[0]}mV");
                 }
 
@@ -142,7 +143,7 @@ namespace M12.Tests
                 controller.ChangeUnitSettings(TestUnit1,
                     new UnitSettings(ModeEnum.TwoPulse, PulsePinEnum.CW, false, true, true, ActiveLevelEnum.Low, false));
 
-                controller.SaveUnitENV(TestUnit1);
+                controller.SaveUnitEnv(TestUnit1);
 
                 controller.Home(TestUnit1);
 
@@ -167,7 +168,7 @@ namespace M12.Tests
                     controller.ChangeUnitSettings((UnitID)unit,
                         new UnitSettings(ModeEnum.TwoPulse, PulsePinEnum.CW, false, false, true, ActiveLevelEnum.High, false));
 
-                    controller.SaveUnitENV((UnitID)unit);
+                    controller.SaveUnitEnv((UnitID)unit);
                 }
 
                 controller.Close();
@@ -182,17 +183,17 @@ namespace M12.Tests
             {
                 controller.Open();
 
-                var sta1 = controller.ReadDOUT();
+                var sta1 = controller.ReadDout();
                 TestContext.WriteLine(sta1);
 
-                controller.SetDOUT(DigitalOutput.DOUT1, DigitalIOStatus.ON);
+                controller.SetDout(DigitalOutput.DOUT1, DigitalIOStatus.ON);
 
-                var sta2 = controller.ReadDOUT();
+                var sta2 = controller.ReadDout();
                 TestContext.WriteLine(sta2);
 
-                controller.SetDOUT(DigitalOutput.DOUT1, DigitalIOStatus.OFF);
+                controller.SetDout(DigitalOutput.DOUT1, DigitalIOStatus.OFF);
 
-                var sta3 = controller.ReadDOUT(DigitalOutput.DOUT1);
+                var sta3 = controller.ReadDout(DigitalOutput.DOUT1);
                 TestContext.WriteLine(sta3);
 
 
@@ -208,7 +209,7 @@ namespace M12.Tests
             {
                 controller.Open();
 
-                var ret = controller.ReadDIN();
+                var ret = controller.ReadDin();
 
                 TestContext.WriteLine(ret);
 
@@ -285,8 +286,8 @@ namespace M12.Tests
                 controller.Home(TestUnit1);
 
                 // emergency stop by the CSS
-                controller.SetCSSThreshold(TestCSS, 2000, 3000);
-                controller.SetCSSEnable(TestCSS, true);
+                controller.SetCssThreshold(TestCSS, 2000, 3000);
+                controller.SetCssEnable(TestCSS, true);
 
                 TestContext.WriteLine($"Move to +10000");
                 // long-range move
@@ -327,7 +328,7 @@ namespace M12.Tests
             using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
             {
                 controller.Open();
-                var val = controller.ReadADC(Definitions.ADCChannels.CH1);
+                var val = controller.ReadAdc(Definitions.ADCChannels.CH1);
                 controller.Close();
 
                 TestContext.WriteLine($"{val[0]}mV");
@@ -346,11 +347,11 @@ namespace M12.Tests
                 TestContext.WriteLine($"{len} values available in memory.");
 
                 var mem = controller.ReadMemory(0, len);
-                TestContext.WriteLine($"{mem.Count} values read from memory.");
+                TestContext.WriteLine($"{mem.Count()} values read from memory.");
 
                 controller.Close();
 
-                Assert.AreEqual(mem.Count, len);
+                Assert.AreEqual(mem.Count(), len);
             }
         }
 
@@ -388,7 +389,7 @@ namespace M12.Tests
 
                 controller.Move(TestUnit2, 1000, 20);
 
-                controller.SetOSR(ADC_OSR.AD7606_OSR_0);
+                controller.SetOsr(ADC_OSR.AD7606_OSR_0);
 
                 BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 100, 20, 20, 50);
                 BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 100, 20, 20, 50);
@@ -428,40 +429,13 @@ namespace M12.Tests
         }
 
         [Test()]
-        public void StartSnakeSearch()
-        {
-            using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
-            {
-                controller.Open();
-
-                controller.SetAccelerationSteps(TestUnit1, 1000);
-
-                controller.Home(TestUnit1);
-
-                controller.Move(TestUnit1, 5000, 20);
-
-                controller.Home(TestUnit2);
-
-                controller.Move(TestUnit2, 5000, 20);
-
-                SnakeSearchArgs args = new SnakeSearchArgs(TestUnit1, 100, TestUnit2, 20, 1, 1, 50);
-
-                controller.StartSnakeSearch(args, ADCChannels.CH1, out List<Point3D> Results);
-
-                controller.Close();
-                
-                TestContext.WriteLine($"{Results.Count} Points scanned.");
-            }
-        }
-
-        [Test()]
         public void SetOSR()
         {
             using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
             {
                 controller.Open();
 
-                controller.SetOSR(ADC_OSR.AD7606_OSR_2);
+                controller.SetOsr(ADC_OSR.AD7606_OSR_2);
                 
                 controller.Close();
             }

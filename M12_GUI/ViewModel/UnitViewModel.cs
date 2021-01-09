@@ -258,7 +258,7 @@ namespace M12_GUI.ViewModel
                 {
                     UnitSettings settings = new UnitSettings(this.UnitMode, this.PulsePin, this.FlipMoveDir, this.FlipLS, this.IsDetectTimmingSignal, this.LSActiveLevel, this.IsFlipIOActiveLevel);
                     M12.ChangeUnitSettings(this.ID, settings);
-                    M12.SaveUnitENV(this.ID);
+                    M12.SaveUnitEnv(this.ID);
                 });
             }
         }

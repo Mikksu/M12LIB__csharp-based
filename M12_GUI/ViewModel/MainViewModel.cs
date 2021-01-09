@@ -203,7 +203,7 @@ namespace M12_GUI.ViewModel
 
         #region Methods
 
-        private void StartBackgroundTask(CancellationToken CancelToken)
+        private void StartBackgroundTask(CancellationToken cancelToken)
         {
             Task.Run(() =>
             {
@@ -213,20 +213,20 @@ namespace M12_GUI.ViewModel
                     {
                         try
                         {
-                            var ret = m12.ReadDIN();
+                            var ret = m12.ReadDin();
                             for (int i = 0; i < ret.Integrated.Length; i++)
                             {
                                 InputIOStatus[i].IsON = ret.Integrated[i] == DigitalIOStatus.ON ? true : false;
                             }
                         }
-                        catch(Exception)
+                        catch (Exception)
                         {
-
+                            // ignored
                         }
 
                         try
                         {
-                            var ret = m12.ReadADC(
+                            var ret = m12.ReadAdc(
                                 ADCChannels.CH1 | 
                                 ADCChannels.CH2 | 
                                 ADCChannels.CH3 | 
@@ -240,19 +240,19 @@ namespace M12_GUI.ViewModel
                                 this.AnalogInputValue[i].Value = ret[i];
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
-
+                            // ignored
                         }
                     }
 
 
-                    if (CancelToken.IsCancellationRequested)
+                    if (cancelToken.IsCancellationRequested)
                         return;
 
                     Thread.Sleep(10);
                 }
-            });
+            }, cancelToken);
         }
 
         private void StopCatptureIntputIOStatus()
@@ -315,7 +315,7 @@ namespace M12_GUI.ViewModel
                             });
                         }
 
-                        var stat = m12.ReadDOUT();
+                        var stat = m12.ReadDout();
                         __Sync_OutputStatus_to_Button(stat);
 
                         cts = new CancellationTokenSource();
@@ -433,11 +433,11 @@ namespace M12_GUI.ViewModel
                 {
                     try
                     {
-                        var stat = m12.ReadDOUT();
+                        var stat = m12.ReadDout();
 
-                        m12.SetDOUT((DigitalOutput)ch, stat.Integrated[ch - 1] == DigitalIOStatus.OFF ? DigitalIOStatus.ON : DigitalIOStatus.OFF);
+                        m12.SetDout((DigitalOutput)ch, stat.Integrated[ch - 1] == DigitalIOStatus.OFF ? DigitalIOStatus.ON : DigitalIOStatus.OFF);
 
-                        stat = m12.ReadDOUT();
+                        stat = m12.ReadDout();
 
                         __Sync_OutputStatus_to_Button(stat);
                     }

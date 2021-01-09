@@ -13,7 +13,6 @@ using M12.ProgressReport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -21,24 +20,24 @@ using System.Threading;
 
 namespace M12
 {
-    public class Controller : IDisposable
+    public sealed class Controller : IDisposable
     {
         #region Definitions
 
         /// <summary>
         /// The timeout value of the read method in millisecond.
         /// </summary>
-        const int DEFAULT_READ_TIMEOUT = 5000;
+        private const int DEFAULT_READ_TIMEOUT = 5000;
 
         /// <summary> 
         /// The timeout value of the wait method of the long-duration-operation in millisecond such as home, move.
         /// </summary>
-        const int DEFAULT_WAIT_BUSY_TIMEOUT = 5000;
+        private const int DEFAULT_WAIT_BUSY_TIMEOUT = 5000;
 
         /// <summary>
         /// The timeout value of the waiting of alignment process.
         /// </summary>
-        const int DEFAULT_WAIT_ALIGNMENT_TIMEOUT = 60000;
+        // private const int DEFAULT_WAIT_ALIGNMENT_TIMEOUT = 60000;
 
         #endregion
 
@@ -50,22 +49,22 @@ namespace M12
 
         #region Variables
 
-        SerialPort port;
+        private readonly SerialPort _port;
 
-        readonly object lockController = new object();
+        private readonly object _lockController = new object();
 
-        IProgress<UnitState> unitStateChangedProgress;
+        private readonly IProgress<UnitState> _unitStateChangedProgress;
 
         #endregion
 
         #region Constructors
 
-        public Controller(string PortName, int Baudrate)
+        public Controller(string portName, int baudRate)
         {
-            port = new SerialPort(PortName, Baudrate, Parity.None, 8, StopBits.One);
+            _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One);
 
             // unit state updated and raise the 
-            unitStateChangedProgress = new Progress<UnitState>(state =>
+            _unitStateChangedProgress = new Progress<UnitState>(state =>
             {
                 OnUnitStateUpdated?.Invoke(this, state);
             });
@@ -75,23 +74,18 @@ namespace M12
 
         #region Properties
 
-        public bool IsOpened
-        {
-            get
-            {
-                return port.IsOpen;
-            }
-        }
+        public bool IsOpened => _port.IsOpen;
 
         #endregion
 
         #region User APIs
 
+        // ReSharper disable once MemberCanBePrivate.Global
         public SystemLastError GetLastError()
         {
             RxPackage package;
 
-            lock (lockController)
+            lock (_lockController)
             {
                 Send(new CommandGetLastError());
                 Read(out package, CancellationToken.None);
@@ -108,14 +102,14 @@ namespace M12
         {
             RxPackage package;
 
-            lock (lockController)
+            lock (_lockController)
             {
                 Send(new CommandGetSystemInfo());
                 Read(out package, CancellationToken.None);
             }
 
-            var sys_info = new SystemInformation(package.Payload);
-            return sys_info;
+            var sysInfo = new SystemInformation(package.Payload);
+            return sysInfo;
         }
 
         /// <summary>
@@ -126,7 +120,7 @@ namespace M12
         {
             RxPackage package;
 
-            lock (lockController)
+            lock (_lockController)
             {
                 Send(new CommandGetSystemState());
                 Read(out package, CancellationToken.None);
@@ -140,15 +134,15 @@ namespace M12
         /// <summary>
         /// Get the settings of the specified channel including Mode, IsFlipDir, etc.
         /// </summary>
-        /// <param name="UnitID"></param>
+        /// <param name="unitId"></param>
         /// <returns></returns>
-        public UnitSettings GetUnitSettings(UnitID UnitID)
+        public UnitSettings GetUnitSettings(UnitID unitId)
         {
             RxPackage package;
 
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandGetUnitSettings(UnitID));
+                Send(new CommandGetUnitSettings(unitId));
                 Read(out package, CancellationToken.None);
             }
 
@@ -159,15 +153,15 @@ namespace M12
         /// <summary>
         /// Get the state of the specified channel including IsHomed, IsBusy, Error, Position, etc.
         /// </summary>
-        /// <param name="UnitID"></param>
+        /// <param name="unitId"></param>
         /// <returns></returns>
-        public UnitState GetUnitState(UnitID UnitID)
+        public UnitState GetUnitState(UnitID unitId)
         {
             RxPackage package;
 
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandGetUnitState(UnitID));
+                Send(new CommandGetUnitState(unitId));
                 Read(out package, CancellationToken.None);
             }
 
@@ -178,40 +172,40 @@ namespace M12
         /// <summary>
         /// Set the general acceleration of the specified channel.
         /// </summary>
-        /// <param name="UnitID"></param>
-        /// <param name="AccelerationSteps"></param>
-        public void SetAccelerationSteps(UnitID UnitID, ushort AccelerationSteps)
+        /// <param name="unitId"></param>
+        /// <param name="accelerationSteps"></param>
+        public void SetAccelerationSteps(UnitID unitId, ushort accelerationSteps)
         {
-            if (AccelerationSteps <= GlobalDefinition.MAX_ACC_STEPS)
+            if (accelerationSteps <= GlobalDefinition.MAX_ACC_STEPS)
             {
-                lock (lockController)
+                lock (_lockController)
                 {
-                    Send(new CommandSetAccSteps(UnitID, AccelerationSteps));
+                    Send(new CommandSetAccSteps(unitId, accelerationSteps));
                 }
             }
             else
             {
-                throw new ArgumentOutOfRangeException("the acceleration is too large.");
+                throw new ArgumentOutOfRangeException(nameof(accelerationSteps), "the acceleration is too large.");
             }
         }
 
         /// <summary>
         /// Set the mode of the specified channel.
         /// </summary>
-        /// <param name="UnitID"></param>
-        /// <param name="Settings"></param>
-        public void ChangeUnitSettings(UnitID UnitID, UnitSettings Settings)
+        /// <param name="unitId"></param>
+        /// <param name="settings"></param>
+        public void ChangeUnitSettings(UnitID unitId, UnitSettings settings)
         {
-            if (Settings != null)
+            if (settings != null)
             {
-                lock (lockController)
+                lock (_lockController)
                 {
-                    Send(new CommandSetMode(UnitID, Settings));
+                    Send(new CommandSetMode(unitId, settings));
                 }
             }
             else
             {
-                throw new ArgumentOutOfRangeException("the settings object can not be null.");
+                throw new ArgumentOutOfRangeException( nameof(settings), "the settings object can not be null.");
             }
         }
 
@@ -220,40 +214,40 @@ namespace M12
         /// NOTE: The CSS INT will be disabled automatically after it's triggered, so it should
         /// be enabled again if you want to it work the next time.
         /// </summary>
-        /// <param name="Css"></param>
-        /// <param name="IsEnabled"></param>
-        public void SetCSSEnable(CSSCH Css, bool IsEnabled)
+        /// <param name="css"></param>
+        /// <param name="isEnabled"></param>
+        public void SetCssEnable(CSSCH css, bool isEnabled)
         {
-            lock(lockController)
+            lock(_lockController)
             {
-                Send(new CommandSetCSSEnable(Css, IsEnabled));
+                Send(new CommandSetCSSEnable(css, isEnabled));
             }
         }
 
         /// <summary>
         /// Set the threshold of the CSS interrupt.
         /// </summary>
-        /// <param name="Css"></param>
-        /// <param name="LVth">The voltage of the low threshold in mV</param>
-        /// <param name="HVth">The voltage of the high threshold in mV</param>
-        public void SetCSSThreshold(CSSCH Css, ushort LVth, ushort HVth)
+        /// <param name="css"></param>
+        /// <param name="lVth">The voltage of the low threshold in mV</param>
+        /// <param name="hVth">The voltage of the high threshold in mV</param>
+        public void SetCssThreshold(CSSCH css, ushort lVth, ushort hVth)
         {
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandSetCSSThreshold(Css, LVth, HVth));
+                Send(new CommandSetCSSThreshold(css, lVth, hVth));
             }
         }
 
         /// <summary>
         /// Set the status of the specified digital output port.
         /// </summary>
-        /// <param name="Channel">DOUT1 to DOUT8</param>
-        /// <param name="Status">OFF:0; ON:1</param>
-        public void SetDOUT(DigitalOutput Channel, DigitalIOStatus Status)
+        /// <param name="channel">DOUT1 to DOUT8</param>
+        /// <param name="status">OFF:0; ON:1</param>
+        public void SetDout(DigitalOutput channel, DigitalIOStatus status)
         {
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandSetDOUT(Channel, Status));
+                Send(new CommandSetDOUT(channel, status));
             }
         }
 
@@ -261,11 +255,11 @@ namespace M12
         /// Read the status of all the digital output ports.
         /// </summary>
         /// <returns></returns>
-        public DigitalOutputStatus ReadDOUT()
+        public DigitalOutputStatus ReadDout()
         {
             RxPackage package;
 
-            lock(lockController)
+            lock(_lockController)
             {
                 Send(new CommandReadDOUT());
                 Read(out package, CancellationToken.None);
@@ -278,23 +272,23 @@ namespace M12
         /// <summary>
         /// Read the status of the specified digital output port.
         /// </summary>
-        /// <param name="Channel"></param>
+        /// <param name="channel"></param>
         /// <returns></returns>
-        public DigitalIOStatus ReadDOUT(DigitalOutput Channel)
+        public DigitalIOStatus ReadDout(DigitalOutput channel)
         {
-            var stat = ReadDOUT();
-            return stat.Integrated[(int)Channel - 1];
+            var stat = ReadDout();
+            return stat.Integrated[(int)channel - 1];
         }
 
         /// <summary>
         /// Read the status of the digital input IOs.
         /// </summary>
         /// <returns></returns>
-        public DigitalInputStatus ReadDIN()
+        public DigitalInputStatus ReadDin()
         {
             RxPackage package;
 
-            lock (lockController)
+            lock (_lockController)
             {
                 Send(new CommandReadDIN());
                 Read(out package, CancellationToken.None);
@@ -307,24 +301,24 @@ namespace M12
         /// <summary>
         /// Read the values of the specified channels of the inner ADC.
         /// </summary>
-        /// <param name="ChannelEnabled">Concat multiple channels with `|` operator.</param>
+        /// <param name="channelEnabled">Concat multiple channels with `|` operator.</param>
         /// <returns></returns>
-        public double[] ReadADC(ADCChannels ChannelEnabled)
+        public double[] ReadAdc(ADCChannels channelEnabled)
         {
             RxPackage package;
 
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandReadADC(ChannelEnabled));
+                Send(new CommandReadADC(channelEnabled));
                 Read(out package, CancellationToken.None);
             }
 
-            ADCValues adc = new ADCValues(ChannelEnabled, package.Payload);
+            var adc = new ADCValues(channelEnabled, package.Payload);
 
             // convert adc raw-data to mV.
-            List<double> valConv = new List<double>();
+            var valConv = new List<double>();
             foreach (var v in adc.Values)
-                valConv.Add(ConvertADCRawTomV(v));
+                valConv.Add(ConvertAdcRawTomV(v));
 
             return valConv.ToArray();
         }
@@ -332,12 +326,12 @@ namespace M12
         /// <summary>
         /// Set the OSR of the ADC7606.
         /// </summary>
-        /// <param name="OSR"></param>
-        public void SetOSR(ADC_OSR OSR)
+        /// <param name="osr"></param>
+        public void SetOsr(ADC_OSR osr)
         {
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandSetOSR(OSR));
+                Send(new CommandSetOSR(osr));
             }
 
             Thread.Sleep(100);
@@ -346,12 +340,12 @@ namespace M12
         /// <summary>
         /// Save the ENV of the specified Unit to the flash.
         /// </summary>
-        /// <param name="UnitID"></param>
-        public void SaveUnitENV(UnitID UnitID)
+        /// <param name="unitId"></param>
+        public void SaveUnitEnv(UnitID unitId)
         {
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandSaveUnitENV(UnitID));
+                Send(new CommandSaveUnitENV(unitId));
             }
 
             Thread.Sleep(100);
@@ -362,174 +356,173 @@ namespace M12
         /// <summary>
         /// Home the specified channel.
         /// </summary>
-        /// <param name="UnitID">ID of Unit</param>
-        /// <param name="LowSpeed">The speed of stage 2</param>
-        /// <param name="HighSpeed">The speed of stage 1</param>
-        /// <param name="Acc"></param>
-        public void Home(UnitID UnitID, byte LowSpeed = 5, byte HighSpeed = 5, ushort Acc = 500)
+        /// <param name="unitId">ID of Unit</param>
+        /// <param name="lowSpeed">The speed of stage 2</param>
+        /// <param name="highSpeed">The speed of stage 1</param>
+        /// <param name="acc"></param>
+        public void Home(UnitID unitId, byte lowSpeed = 5, byte highSpeed = 5, ushort acc = 500)
         {
-            Errors err = Errors.ERR_NONE;
+            Errors err;
 
             // check arguments
-            if (LowSpeed > 100)
-                LowSpeed = 100;
-            else if (LowSpeed == 0)
-                LowSpeed = 1;
+            if (lowSpeed > 100)
+                lowSpeed = 100;
+            else if (lowSpeed == 0)
+                lowSpeed = 1;
 
-            if (HighSpeed > 100)
-                HighSpeed = 100;
-            else if (HighSpeed == 0)
-                HighSpeed = 1;
+            if (highSpeed > 100)
+                highSpeed = 100;
+            else if (highSpeed == 0)
+                highSpeed = 1;
 
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandHome(UnitID, Acc, LowSpeed, HighSpeed));
+                Send(new CommandHome(unitId, acc, lowSpeed, highSpeed));
             }
 
             try
             {
-                err = WaitByUnitState(UnitID, 500);
+                err = WaitByUnitState(unitId, 500);
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException)
             {
-                lock (lockController)
+                lock (_lockController)
                 {
-                    Send(new CommandStop(UnitID));
+                    Send(new CommandStop(unitId));
                 }
-                throw ex;
+                throw;
             }
 
             if (err != Errors.ERR_NONE)
-                throw new UnitErrorException(UnitID, err);
+                throw new UnitErrorException(unitId, err);
         }
 
         /// <summary>
         /// Move the specified channel.
         /// </summary>
-        /// <param name="UnitID"></param>
-        /// <param name="Steps"></param>
-        /// <param name="Speed"></param>
-        /// <param name="ct"></param>
-        public void Move(UnitID UnitID, int Steps, byte Speed)
+        /// <param name="unitId"></param>
+        /// <param name="steps"></param>
+        /// <param name="speed"></param>
+        public void Move(UnitID unitId, int steps, byte speed)
         {
-            Errors err = Errors.ERR_NONE;
+            Errors err;
 
             // check arguments
-            if (Speed > 100)
-                Speed = 100;
-            else if (Speed == 0)
-                Speed = 1;
+            if (speed > 100)
+                speed = 100;
+            else if (speed == 0)
+                speed = 1;
 
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandMove(UnitID, Steps, Speed));
+                Send(new CommandMove(unitId, steps, speed));
             }
 
             try
             {
-                err = WaitByUnitState(UnitID, 50);
+                err = WaitByUnitState(unitId, 50);
             }
-            catch(TimeoutException ex)
+            catch(TimeoutException)
             {
-                lock(lockController)
+                lock(_lockController)
                 {
-                    Send(new CommandStop(UnitID));
+                    Send(new CommandStop(unitId));
                 }
-                throw ex;
+                throw;
             }
 
             if (err != Errors.ERR_NONE)
-                throw new UnitErrorException(UnitID, err);
+                throw new UnitErrorException(unitId, err);
         }
 
         /// <summary>
         /// Fast move the specified axis.
         /// </summary>
-        /// <param name="UnitID"></param>
-        /// <param name="Steps"></param>
-        /// <param name="Speed"></param>
-        /// <param name="Microsteps"></param>
-        public void FastMove(UnitID UnitID, int Steps, byte Speed, ushort Microsteps)
+        /// <param name="unitId"></param>
+        /// <param name="steps"></param>
+        /// <param name="speed"></param>
+        /// <param name="microsteps"></param>
+        public void FastMove(UnitID unitId, int steps, byte speed, ushort microsteps)
         {
-            Errors err = Errors.ERR_NONE;
+            Errors err;
 
             // check arguments
-            if (Speed > 100)
-                Speed = 100;
-            else if (Speed == 0)
-                Speed = 1;
+            if (speed > 100)
+                speed = 100;
+            else if (speed == 0)
+                speed = 1;
 
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandFastMove(UnitID, Steps, Speed, Microsteps));
+                Send(new CommandFastMove(unitId, steps, speed, microsteps));
             }
 
             try
             {
-                err = WaitByUnitState(UnitID, 50);
+                err = WaitByUnitState(unitId, 50);
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException)
             {
-                lock (lockController)
+                lock (_lockController)
                 {
-                    Send(new CommandStop(UnitID));
+                    Send(new CommandStop(unitId));
                 }
-                throw ex;
+                throw;
             }
 
             if (err != Errors.ERR_NONE)
-                throw new UnitErrorException(UnitID, err);
+                throw new UnitErrorException(unitId, err);
         }
 
         /// <summary>
         /// Move the specified channel and capture the ADC value.
         /// </summary>
-        /// <param name="UnitID"></param>
-        /// <param name="Steps"></param>
-        /// <param name="Speed"></param>
-        /// <param name="TriggerInterval"></param>
-        /// <param name="ct"></param>
-        public void MoveTriggerADC(UnitID UnitID, int Steps, byte Speed, ushort TriggerInterval)
+        /// <param name="unitId"></param>
+        /// <param name="steps"></param>
+        /// <param name="speed"></param>
+        /// <param name="triggerInterval"></param>
+        // ReSharper disable once MemberCanBePrivate.Global
+        public void MoveTriggerAdc(UnitID unitId, int steps, byte speed, ushort triggerInterval)
         {
-            Errors err = Errors.ERR_NONE;
+            Errors err;
 
             // check arguments
-            if (Speed > 100)
-                Speed = 100;
-            else if (Speed == 0)
-                Speed = 1;
+            if (speed > 100)
+                speed = 100;
+            else if (speed == 0)
+                speed = 1;
 
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandMoveTriggerADC(UnitID, Steps, Speed, TriggerInterval));
+                Send(new CommandMoveTriggerADC(unitId, steps, speed, triggerInterval));
             }
 
             try
             {
-                err = WaitByUnitState(UnitID, 100);
+                err = WaitByUnitState(unitId);
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException)
             {
-                lock (lockController)
+                lock (_lockController)
                 {
-                    Send(new CommandStop(UnitID));
+                    Send(new CommandStop(unitId));
                 }
-                throw ex;
+                throw;
             }
 
             if (err != Errors.ERR_NONE)
-                throw new UnitErrorException(UnitID, err);
+                throw new UnitErrorException(unitId, err);
         }
 
         /// <summary>
         /// Stop the moving channel.
         /// </summary>
-        /// <param name="UnitID"></param>
-        public void Stop(UnitID UnitID)
+        /// <param name="unitId"></param>
+        public void Stop(UnitID unitId)
         {
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandStop(UnitID));
+                Send(new CommandStop(unitId));
             }
         }
 
@@ -540,12 +533,13 @@ namespace M12
         /// <summary>
         /// Config the ADC Trigger.
         /// </summary>
-        /// <param name="ChannelEnabled"></param>
-        public void ConfigADCTrigger(ADCChannels ChannelEnabled)
+        /// <param name="channelEnabled"></param>
+        // ReSharper disable once MemberCanBePrivate.Global
+        public void ConfigAdcTrigger(ADCChannels channelEnabled)
         {
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandConfigADCTrigger(ChannelEnabled));
+                Send(new CommandConfigADCTrigger(channelEnabled));
             }
         }
 
@@ -554,119 +548,141 @@ namespace M12
         #region Alignment
 
         /// <summary>
-        /// Perform the fast-1D alignment with one analog capture channel actived.
+        /// Perform the fast-1D alignment with one analog capture channel activated.
         /// </summary>
-        /// <param name="Unit"></param>
-        /// <param name="Range"></param>
-        /// <param name="Interval"></param>
-        /// <param name="Speed"></param>
-        /// <param name="AnalogCapture"></param>
-        /// <param name="ScanResults"></param>
-        public void StartFast1D(UnitID Unit, int Range, ushort Interval, byte Speed, ADCChannels AnalogCapture, out List<Point2D> ScanResults)
+        /// <param name="unit"></param>
+        /// <param name="range"></param>
+        /// <param name="interval"></param>
+        /// <param name="speed"></param>
+        /// <param name="analogCapture"></param>
+        /// <param name="scanResults"></param>
+        public void StartFast1D(UnitID unit, int range, ushort interval, byte speed, ADCChannels analogCapture, out List<Point2D> scanResults)
         {
-            StartFast1D(Unit, Range, Interval, Speed, AnalogCapture, out ScanResults, 0, out _);
+            StartFast1D(unit, range, interval, speed, analogCapture, out scanResults, 0, out _);
         }
 
         /// <summary>
         /// Perform the fast-1D alignment with two analog capture channel activated.
         /// </summary>
-        /// <param name="Unit"></param>
-        /// <param name="Range"></param>
-        /// <param name="Interval"></param>
-        /// <param name="Speed"></param>
-        /// <param name="AnalogCapture"></param>
-        /// <param name="ScanResults"></param>
-        public void StartFast1D(UnitID Unit, int Range, ushort Interval, byte Speed, ADCChannels AnalogCapture, out List<Point2D> ScanResults, ADCChannels AnalogCapture2, out List<Point2D> ScanResults2)
+        /// <param name="unit"></param>
+        /// <param name="range"></param>
+        /// <param name="interval"></param>
+        /// <param name="speed"></param>
+        /// <param name="analogCapture"></param>
+        /// <param name="scanResults"></param>
+        /// <param name="analogCapture2"></param>
+        /// <param name="scanResults2"></param>
+        public void StartFast1D(UnitID unit, int range, ushort interval, byte speed, ADCChannels analogCapture,
+            out List<Point2D> scanResults, ADCChannels analogCapture2, out List<Point2D> scanResults2)
         {
-            if(GlobalDefinition.NumberOfSetBits((int)AnalogCapture) != 1) 
-                throw new ArgumentException($"only 1 analog capture channel is allowed.", nameof(AnalogCapture));
+            if(GlobalDefinition.NumberOfSetBits((int)analogCapture) != 1) 
+                throw new ArgumentException("only 1 analog capture channel can be activated.", nameof(analogCapture));
 
-            if(GlobalDefinition.NumberOfSetBits((int)AnalogCapture2) > 1)
-                throw new ArgumentException($"only 1 analog capture channel is allowed.", nameof(AnalogCapture2));
+            if(GlobalDefinition.NumberOfSetBits((int)analogCapture2) != 1)
+                throw new ArgumentException("only 1 analog capture channel can be activated.", nameof(analogCapture2));
 
-            int dir = Range < 0 ? -1 : 1;
+            var dir = range < 0 ? -1 : 1;
 
-            ScanResults = new List<Point2D>();
+            scanResults = new List<Point2D>();
 
-            ScanResults2 = null;
-            if(AnalogCapture2 != 0)
-                ScanResults2 = new List<Point2D>();
+            scanResults2 = null;
+            if(analogCapture2 != 0)
+                scanResults2 = new List<Point2D>();
 
-            ConfigADCTrigger(AnalogCapture | AnalogCapture2);
+            ConfigAdcTrigger(analogCapture | analogCapture2);
 
             ClearMemory();
 
-            MoveTriggerADC(Unit, Range, Speed, Interval);
+            MoveTriggerAdc(unit, range, speed, interval);
 
             // read sampling points from the memory.
-            var adcValues = ReadMemoryAll();
+            var adcValues = ReadMemoryAll().ToList();
 
-            int x = 0;
-            int indexOfAdcValues = 0;
+            var x = 0;
+            var indexOfAdcValues = 0;
 
             while (true)
             {
-                if (indexOfAdcValues > (adcValues.Count - 1))
-                    ScanResults.Add(new Point2D(x, 0));
-                else
-                    ScanResults.Add(new Point2D(x, adcValues[indexOfAdcValues++]));
+                scanResults.Add(indexOfAdcValues > (adcValues.Count - 1)
+                    ? new Point2D(x, 0)
+                    : new Point2D(x, adcValues[indexOfAdcValues++]));
 
-                if (AnalogCapture2 != 0)
+                if (analogCapture2 != 0)
                 {
-                    if (indexOfAdcValues > (adcValues.Count - 1))
-                        ScanResults2.Add(new Point2D(x, 0));
-                    else
-                        ScanResults2.Add(new Point2D(x, adcValues[indexOfAdcValues++]));
+                    scanResults2?.Add(indexOfAdcValues > (adcValues.Count - 1)
+                        ? new Point2D(x, 0)
+                        : new Point2D(x, adcValues[indexOfAdcValues++]));
                 }
 
-                x += (dir * Interval);
+                x += (dir * interval);
 
-                if (Math.Abs(x) >= Math.Abs(Range))
+                if (Math.Abs(x) >= Math.Abs(range))
                 {
                     break;
                 }
             }
+
+            #region Convert negative coordinates to positive coordinates.
+
+            var minPos = scanResults.Min(p => p.X);
+            foreach (var p in scanResults)
+            {
+                p.X -= minPos;
+            }
+
+            if (analogCapture2 != 0 && scanResults2 != null)
+            {
+                minPos = scanResults2.Min(p => p.X);
+                foreach (var p in scanResults2)
+                {
+                    p.X -= minPos;
+                }
+            }
+
+            #endregion
             
             // ran too fast, some ADC value missed.
-            var pointsDesired = (int) Math.Ceiling((decimal) Range / Interval);
-            if (pointsDesired != ScanResults.Count)
-                throw new ADCSamplingPointMissException(pointsDesired,  ScanResults.Count);
+            var pointsDesired = (int) Math.Ceiling((double) range / interval);
+            if (pointsDesired != scanResults.Count)
+                throw new ADCSamplingPointMissException(pointsDesired,  scanResults.Count);
         }
 
         /// <summary>
         /// Perform the blind-search.
         /// </summary>
-        /// <param name="HorizontalArgs">The arguments of the horizontal axis.</param>
-        /// <param name="VerticalArgs">The arguments of the vertical axis.</param>
-        /// <param name="AdcUsed">Note: only one ADC channel can be used to sample.</param>
-        /// <param name="ScanResults">Return the intensity-to-position points.</param>
-        public void StartBlindSearch(BlindSearchArgs HorizontalArgs, BlindSearchArgs VerticalArgs, ADCChannels AdcUsed, out List<Point3D> ScanResults, IProgress<BlindSearchProgressReport> ProgressReportHandle = null)
+        /// <param name="horizontalArgs">The arguments of the horizontal axis.</param>
+        /// <param name="verticalArgs">The arguments of the vertical axis.</param>
+        /// <param name="adcUsed">Note: only one ADC channel can be used to sample.</param>
+        /// <param name="scanResults">Return the intensity-to-position points.</param>
+        /// <param name="progressReportHandle"></param>
+        public void StartBlindSearch(BlindSearchArgs horizontalArgs, BlindSearchArgs verticalArgs, ADCChannels adcUsed,
+            out List<Point3D> scanResults, IProgress<BlindSearchProgressReport> progressReportHandle = null)
         {
             //! The memory is cleared automatically, you don't have to clear it manually.
 
-            // check argments.
-            if(GlobalDefinition.NumberOfSetBits((int)AdcUsed) != 1)
-                throw new ArgumentException($"only 1 analog capture channel is allowed.", nameof(AdcUsed));
+            // arguments checking.
+            if(GlobalDefinition.NumberOfSetBits((int)adcUsed) != 1)
+                throw new ArgumentException("only 1 analog capture channel can be activated.", nameof(adcUsed));
 
-            if (HorizontalArgs.Gap < HorizontalArgs.Interval)
-                throw new ArgumentException($"the capture interval of {HorizontalArgs.Unit} should be less than the gap.");
+            if (horizontalArgs.Gap < horizontalArgs.Interval)
+                throw new ArgumentException($"the capture interval of {horizontalArgs.Unit} should be less than the gap.");
 
-            if (VerticalArgs.Gap < VerticalArgs.Interval)
-                throw new ArgumentException($"the capture interval of {VerticalArgs.Unit} should be less than the gap.");
+            if (verticalArgs.Gap < verticalArgs.Interval)
+                throw new ArgumentException($"the capture interval of {verticalArgs.Unit} should be less than the gap.");
 
-            ScanResults = new List<Point3D>();
+            scanResults = new List<Point3D>();
 
-            ConfigADCTrigger(AdcUsed);
+            ConfigAdcTrigger(adcUsed);
 
             // report progress.
-            ProgressReportHandle?.Report(new BlindSearchProgressReport(BlindSearchProgressReport.ProgressStage.SCAN, 0));
+            progressReportHandle?.Report(new BlindSearchProgressReport(BlindSearchProgressReport.ProgressStage.SCAN, 0));
 
-            lock (lockController)
+            lock (_lockController)
             {
-                Send(new CommandBlindSearch(HorizontalArgs, VerticalArgs));
+                Send(new CommandBlindSearch(horizontalArgs, verticalArgs));
             }
                         
-            var err = WaitBySystemState(200, 120000, new List<UnitID>() { HorizontalArgs.Unit, VerticalArgs.Unit });
+            var err = WaitBySystemState(200, 120000, new List<UnitID>() { horizontalArgs.Unit, verticalArgs.Unit });
 
             if (err.Error != Errors.ERR_NONE)
             {
@@ -679,41 +695,44 @@ namespace M12
                 var adcValues = ReadMemoryAll(new Progress<MemoryReadProgressReport>(e =>
                 {
                     // report transmission progress.
-                    ProgressReportHandle?.Report(new BlindSearchProgressReport(BlindSearchProgressReport.ProgressStage.TRANS, e.Complete));
-                }));
-
-                int indexOfAdcValues = 0;
-                int cycle = 0;
+                    progressReportHandle?.Report(new BlindSearchProgressReport(BlindSearchProgressReport.ProgressStage.TRANS, e.Complete));
+                })).ToList();
+                
+                var indexOfAdcValues = 0;
+                var cycle = 0;
                 double x = 0, y = 0;
-                BlindSearchArgs activeParam = null;
-                int moveDirection = 1;
 
                 // rebuild the relationship between the position and the intensity.
                 while (true)
                 {
                     var seq = cycle % 4;
 
+                    BlindSearchArgs activeParam;
+                    int moveDirection;
                     switch (seq)
                     {
                         case 0:     // move horizontal axis (x) to positive direction (right)
-                            activeParam = HorizontalArgs;
+                            activeParam = horizontalArgs;
                             moveDirection = 1;
                             break;
 
                         case 1:
-                            activeParam = VerticalArgs;
+                            activeParam = verticalArgs;
                             moveDirection = 1;
                             break;
 
                         case 2:
-                            activeParam = HorizontalArgs;
+                            activeParam = horizontalArgs;
                             moveDirection = -1;
                             break;
 
                         case 3:
-                            activeParam = VerticalArgs;
+                            activeParam = verticalArgs;
                             moveDirection = -1;
                             break;
+                        
+                        default:
+                            throw new InvalidOperationException("unknown sequence in the blind search.");
                     }
 
                     var steps = moveDirection * (activeParam.Gap * (cycle / 2 + 1));
@@ -722,44 +741,40 @@ namespace M12
                         break;
 
                     // for the horizontal axis.
-                    if (activeParam == HorizontalArgs)
+                    if (activeParam == horizontalArgs)
                     {
                         var originPos = x;
 
                         while (true)
                         {
-                            if (indexOfAdcValues > (adcValues.Count - 1))
-                                ScanResults.Add(new Point3D(x, y, 0));
-                            else
-                                ScanResults.Add(new Point3D(x, y, adcValues[indexOfAdcValues++]));
+                            scanResults.Add(indexOfAdcValues > (adcValues.Count - 1)
+                                ? new Point3D(x, y, 0)
+                                : new Point3D(x, y, adcValues[indexOfAdcValues++]));
 
                             x += moveDirection * activeParam.Interval;
 
-                            if (Math.Abs(x - originPos) >= Math.Abs(steps))
-                            {
-                                x = originPos + steps;
-                                break;
-                            }
+                            if (!(Math.Abs(x - originPos) >= Math.Abs(steps))) continue;
+                            
+                            x = originPos + steps;
+                            break;
                         }
                     }
-                    else if (activeParam == VerticalArgs)
+                    else if (activeParam == verticalArgs)
                     {
                         var originPos = y;
 
                         while (true)
                         {
-                            if (indexOfAdcValues > (adcValues.Count - 1))
-                                ScanResults.Add(new Point3D(x, y, 0));
-                            else
-                                ScanResults.Add(new Point3D(x, y, adcValues[indexOfAdcValues++]));
+                            scanResults.Add(indexOfAdcValues > (adcValues.Count - 1)
+                                ? new Point3D(x, y, 0)
+                                : new Point3D(x, y, adcValues[indexOfAdcValues++]));
 
                             y += moveDirection * activeParam.Interval;
 
-                            if (Math.Abs(y - originPos) >= Math.Abs(steps))
-                            {
-                                y = originPos + steps;
-                                break;
-                            }
+                            if (!(Math.Abs(y - originPos) >= Math.Abs(steps))) continue;
+                            
+                            y = originPos + steps;
+                            break;
                         }
                     }
 
@@ -774,126 +789,8 @@ namespace M12
                 //    sb.Append($"{point.X}\t{point.Y}\t{point.Z}\r\n");
                 //}
 
-                if (ScanResults.Count != adcValues.Count)
-                    throw new ADCSamplingPointMissException(ScanResults.Count, adcValues.Count);
-            }
-        }
-
-        /// <summary>
-        /// Perform the snake route scan.
-        /// </summary>
-        /// <param name="Args"></param>
-        /// <param name="AdcUsed"></param>
-        /// <param name="ScanResults"></param>
-        public void StartSnakeSearch(SnakeSearchArgs Args, ADCChannels AdcUsed, out List<Point3D> ScanResults)
-        {
-            //! The memory is cleared automatically, you don't need to clear it manually.
-
-            // validate arguments.
-            if (GlobalDefinition.NumberOfSetBits((int)AdcUsed) != 1)
-                throw new ArgumentException($"only 1 analog capture channel is allowed.", nameof(AdcUsed));
-
-            if (Args.Gap < Args.SamplingInterval)
-                throw new ArgumentException($"the interval should be less than the gap.", nameof(Args));
-
-            ScanResults = new List<Point3D>();
-
-            var hHalfRange = Args.HorizontalRange / 2;
-            var vHalfRange = Args.VerticalRange / 2;
-            Point pointNow ;
-
-            ConfigADCTrigger(AdcUsed);
-
-            // move to the start point if necessary.
-            if(Args.IsStartFromCenter)
-            {
-                if(Args.IsFlipHorizontalScanDirection)
-                    Move(Args.HorizontalAxis, hHalfRange, Args.Speed);
-                else
-                    Move(Args.HorizontalAxis, -hHalfRange, Args.Speed);
-
-                if (Args.IsFlipVertialScanDirection)
-                    Move(Args.VerticalAxis, vHalfRange, Args.Speed);
-                else
-                    Move(Args.VerticalAxis, -vHalfRange, Args.Speed);
-
-                pointNow = new Point(-hHalfRange, -vHalfRange);
-            }
-            else
-            {
-                pointNow = new Point(0, 0);
-            }
-
-            // start to scan...
-            //TODO to be completed!
-            
-
-            lock (lockController)
-            {
-                Send(new CommandSnakeSearch(Args));
-            } 
-
-            var err = WaitBySystemState(200, 120000);
-
-            if (err.Error != Errors.ERR_NONE)
-            {
-                throw new SystemErrorException(err);
-            }
-            else
-            {
-
-                //var values = new List<double>(new double[100000]);
-                // read the sampling points from the memory.
-                var adcValues = ReadMemoryAll();
-
-                int indexOfAdcValues = 0;
-                double x = 0, y = 0;
-                int direction = 1;
-
-                // rebuild the relationship between the position and the intensity.
-                while (true)
-                {
-                    if (indexOfAdcValues >= adcValues.Count)
-                    {
-                        ScanResults.Add(new Point3D(x, y, 0));
-                    }
-                    else
-                        ScanResults.Add(new Point3D(x, y, adcValues[indexOfAdcValues]));
-
-                    x += Args.SamplingInterval * direction;
-
-                    if (x < 0)
-                    {
-                        x = 0;
-                    }
-                    else if (x > Args.HorizontalRange)
-                    {
-                        x = Args.HorizontalRange;
-                    }
-                    else
-                    {
-                        //continue to retrive ADC value along the x-axis.
-                        continue;
-                    }
-
-                    // finish to retrive ADC values along the x-axis.
-                    direction *= -1;
-                    y += Args.Gap;
-
-                    if (y > Args.VerticalRange)
-                        break;
-
-                }
-
-                //// output debug data.
-                //StringBuilder sb = new StringBuilder();
-                //foreach (var point in ScanResults)
-                //{
-                //    sb.Append($"{point.X}\t{point.Y}\t{point.Z}\r\n");
-                //}
-
-                if (ScanResults.Count != adcValues.Count)
-                    throw new ADCSamplingPointMissException(ScanResults.Count, adcValues.Count);
+                if (scanResults.Count != adcValues.Count)
+                    throw new ADCSamplingPointMissException(scanResults.Count, adcValues.Count);
             }
         }
 
@@ -905,19 +802,19 @@ namespace M12
         /// Get the length of the valid memory.
         /// </summary>
         /// <returns></returns>
-        public UInt32 GetMemoryLength()
+        public uint GetMemoryLength()
         {
             RxPackage package;
 
-            lock (lockController)
+            lock (_lockController)
             {
                 Send(new CommandGetMemoryLength());
                 Read(out package, CancellationToken.None);
             }
 
-            using (MemoryStream stream = new MemoryStream(package.Payload))
+            using (var stream = new MemoryStream(package.Payload))
             {
-                using (BinaryReader reader = new BinaryReader(stream))
+                using (var reader = new BinaryReader(stream))
                 {
                     return reader.ReadUInt32();
                 }
@@ -929,82 +826,81 @@ namespace M12
         /// <summary>
         /// Read ADC values from the memory.
         /// </summary>
-        /// <param name="Offset"></param>
-        /// <param name="LengthToRead"></param>
+        /// <param name="offset"></param>
+        /// <param name="lengthToRead"></param>
         /// <returns></returns>
-        public List<double> ReadMemory(uint Offset, uint LengthToRead)
+        public IEnumerable<double> ReadMemory(uint offset, uint lengthToRead)
         {
-           List<double> raw = new List<double>();
+           var raw = new List<double>();
 
-            RxPackage package;
+           lock (_lockController)
+           {
+               Send(new CommandReadMemory(offset, lengthToRead));
+               Read(out var package, CancellationToken.None);
 
-            lock (lockController)
-            {
-                Send(new CommandReadMemory(Offset, LengthToRead));
-                Read(out package, CancellationToken.None);
+               var block = new MemoryBlock(package.Payload);
+               foreach (var val in block.Values)
+               {
+                   raw.Add(ConvertAdcRawTomV(val));
+               }
 
-                MemoryBlock block = new MemoryBlock(package.Payload);
-                foreach (var val in block.Values)
-                {
-                    raw.Add(ConvertADCRawTomV(val));
-                }
+               //// continue to read all blocks.
+               //while (true)
+               //{
+               //    Read(out package, CancellationToken.None);
 
-                //// continue to read all blocks.
-                //while (true)
-                //{
-                //    Read(out package, CancellationToken.None);
+               //    MemoryBlock block = new MemoryBlock(package.Payload);
 
-                //    MemoryBlock block = new MemoryBlock(package.Payload);
+               //    if (block.Length == 0) // the last block has received.
+               //        break;
+               //    else
+               //    {
+               //        foreach(var val in block.Values)
+               //        {
+               //            raw.Add(ConvertADCRawTomV(val));
+               //        }
+               //    }
 
-                //    if (block.Length == 0) // the last block has received.
-                //        break;
-                //    else
-                //    {
-                //        foreach(var val in block.Values)
-                //        {
-                //            raw.Add(ConvertADCRawTomV(val));
-                //        }
-                //    }
+               //}
+           }
 
-                //}
-            }
-
-            return raw;
+           return raw;
         }
 
         /// <summary>
         /// Read all ADC values.
         /// </summary>
         /// <returns></returns>
-        public List<double> ReadMemoryAll(IProgress<MemoryReadProgressReport> ProgressReportHandle = null)
+        // ReSharper disable once MemberCanBePrivate.Global
+        public IEnumerable<double> ReadMemoryAll(IProgress<MemoryReadProgressReport> progressReportHandle = null)
         {
             var len = GetMemoryLength();
 
-            List<double> buff = new List<double>((int)len);
+            var buff = new List<double>((int)len);
 
-            var blockLen = 128; // read 128 points each time.
+            const int blockLen = 128; // read 128 points each time.
             var cycle0 = len / blockLen;
             var cycle1 = len % blockLen;
             var offset = 0;
-            int retry = 0;
+            var retry = 0;
 
-            for (int i = 0; i < cycle0; i++)
+            for (var i = 0; i < cycle0; i++)
             {
                 try
                 {
-                    var mem = ReadMemory((uint)offset, (uint)blockLen);
+                    var mem = ReadMemory((uint)offset, blockLen);
                     buff.AddRange(mem);
                     offset += blockLen;
                     retry = 0;
 
                     // report progress.
-                    ProgressReportHandle?.Report(new MemoryReadProgressReport(offset, (int)len));
+                    progressReportHandle?.Report(new MemoryReadProgressReport(offset, (int)len));
                 }
-                catch(Exception ex)
+                catch(Exception)
                 {
                     retry++;
                     if (retry > 3)
-                        throw ex;
+                        throw;
                     else
                         Thread.Sleep(5);
                 }
@@ -1014,17 +910,17 @@ namespace M12
             {
                 try
                 {
-                    var mem = ReadMemory((uint)offset, (uint)cycle1);
+                    var mem = ReadMemory((uint)offset, cycle1);
                     buff.AddRange(mem);
 
                     // report progress.
-                    ProgressReportHandle?.Report(new MemoryReadProgressReport(offset, (int)len));
+                    progressReportHandle?.Report(new MemoryReadProgressReport(offset, (int)len));
                 }
-                catch(Exception ex)
+                catch(Exception)
                 {
                     retry++;
                     if (retry > 3)
-                        throw ex;
+                        throw;
                     else
                         Thread.Sleep(100);
                 }
@@ -1036,9 +932,10 @@ namespace M12
         /// <summary>
         /// Free the memory.
         /// </summary>
+        // ReSharper disable once MemberCanBePrivate.Global
         public void ClearMemory()
         {
-            lock (lockController)
+            lock (_lockController)
             {
                 Send(new CommandClearMemory());
             }
@@ -1052,73 +949,73 @@ namespace M12
 
         public void Open()
         {
-            if (port.IsOpen == false)
-                port.Open();
+            if (_port.IsOpen == false)
+                _port.Open();
         }
 
         public void Close()
         {
-            if (this.port != null && this.port.IsOpen)
-                port.Close();
+            if (this._port != null && this._port.IsOpen)
+                _port.Close();
         }
 
         /// <summary>
         /// Send binary data to serial port.
         /// </summary>
-        /// <param name="Command"></param>
-        void Send(ICommand Command)
+        /// <param name="command"></param>
+        void Send(ICommand command)
         {
-            port.DiscardInBuffer();
-            port.DiscardOutBuffer();
+            _port.DiscardInBuffer();
+            _port.DiscardOutBuffer();
 
-            var data = Command.ToArray();
+            var data = command.ToArray();
 
-            port.Write(data, 0, data.Length);
+            _port.Write(data, 0, data.Length);
         }
-        
+
         /// <summary>
         /// Read package from UART port synchronously with specified timeout value.
         /// </summary>
-        /// <param name="Timeout"></param>
-        /// <param name="Package"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="timeout"></param>
+        /// <param name="package"></param>
         /// <returns></returns>
-        public void Read(out RxPackage Package, CancellationToken cancellationToken, int Timeout = DEFAULT_READ_TIMEOUT)
+        private void Read(out RxPackage package, CancellationToken cancellationToken, int timeout = DEFAULT_READ_TIMEOUT)
         {
-            Package = new RxPackage();
+            package = new RxPackage();
 
-            DateTime start = DateTime.Now;
+            var start = DateTime.Now;
             while (true)
             {
                 var span = DateTime.Now - start;
-                if (span.TotalMilliseconds > Timeout)
+                if (span.TotalMilliseconds > timeout)
                     throw new TimeoutException("timeout to read package from the serial port.");
 
                 if (cancellationToken != CancellationToken.None && cancellationToken.IsCancellationRequested)
                     throw new OperationCanceledException("operation has cancelled.");
 
                 // if one or more bytes are received, push to RxPackageParser.
-                var len = port.BytesToRead;
-                if (len > 0)
+                var len = _port.BytesToRead;
+                if (len <= 0) continue;
+                
+                var data = new byte[len];
+                _port.Read(data, 0, len);
+
+                foreach (var t in data)
                 {
-                    byte[] data = new byte[len];
-                    port.Read(data, 0, len);
+                    package.AddData(t);
 
-                    for (int i = 0; i < data.Length; i++)
+                    if (package.IsPackageFound)
                     {
-                        Package.AddData(data[i]);
-
-                        if (Package.IsPackageFound)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (Package.IsPackageFound)
                         break;
+                    }
                 }
+
+                if (package.IsPackageFound)
+                    break;
             }
 
-            if (Package.IsPassCRC == false)
+            if (package.IsPassCRC == false)
             {
                 throw new Exception("the CRC of the package is error.");
             }
@@ -1127,27 +1024,27 @@ namespace M12
         /// <summary>
         /// Convert the raw-data of the ADC to mV.
         /// </summary>
-        /// <param name="AdcVal"></param>
+        /// <param name="adcVal"></param>
         /// <returns></returns>
-        private double ConvertADCRawTomV(short AdcVal)
+        private static double ConvertAdcRawTomV(short adcVal)
         {
-            return AdcVal / 32768.0 * GlobalDefinition.ADCVref;
+            return adcVal / 32768.0 * GlobalDefinition.ADCVref;
         }
 
         /// <summary>
         /// Waiting for accomplishment of the time-consuming operations by the state of the specified Unit.
         /// </summary>
-        /// <param name="UnitID"></param>
-        /// <param name="ct"></param>
-        /// <param name="LoopInterval"></param>
-        /// <param name="Timeout"></param>
+        /// <param name="unitId"></param>
+        /// <param name="loopInterval"></param>
+        /// <param name="timeout"></param>
         /// <returns></returns>
-        public Errors WaitByUnitState(UnitID UnitID, int LoopInterval = 100, int Timeout = DEFAULT_WAIT_BUSY_TIMEOUT)
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Errors WaitByUnitState(UnitID unitId, int loopInterval = 100, int timeout = DEFAULT_WAIT_BUSY_TIMEOUT)
         {
-            Stopwatch sw = new Stopwatch();
-            UnitState state = null;
+            var sw = new Stopwatch();
+            UnitState state;
 
-            int _lastPosition = 0;
+            var lastPosition = 0;
             
             Thread.Sleep(50);
 
@@ -1155,26 +1052,26 @@ namespace M12
             {
                 sw.Restart();
 
-                state = GetUnitState(UnitID);
+                state = GetUnitState(unitId);
 
                 // if the abs-position is changed, reset the timeout clock.
-                if (state.AbsPosition != _lastPosition)
+                if (state.AbsPosition != lastPosition)
                 {
                     sw.Restart();
-                    _lastPosition = state.AbsPosition;
+                    lastPosition = state.AbsPosition;
                 }
 
                 // raise event after the unit state updated.
-                unitStateChangedProgress.Report(state);
+                _unitStateChangedProgress.Report(state);
                 
                 if (state.IsBusy == false)
                     break;
 
                 sw.Stop();
-                if (sw.Elapsed.TotalMilliseconds > Timeout)
+                if (sw.Elapsed.TotalMilliseconds > timeout)
                     throw new TimeoutException("it's timeout to wait the long-duration-operation.");
 
-                Thread.Sleep(LoopInterval);
+                Thread.Sleep(loopInterval);
                 
             }
 
@@ -1184,59 +1081,57 @@ namespace M12
         /// <summary>
         /// Waiting for accomplishment of the time-consuming operations by the state of the entire system.
         /// </summary>
-        /// <param name="ct"></param>
-        /// <param name="LoopInterval"></param>
-        /// <param name="Timeout"></param>
-        /// <param name="PositionRefreshingList">The list contains the axes whose position needs to be updated in real time.</param>
+        /// <param name="loopInterval"></param>
+        /// <param name="timeout"></param>
+        /// <param name="positionRefreshingList">The list contains the axes whose position needs to be updated in real time.</param>
         /// <returns></returns>
-        public SystemLastError WaitBySystemState(int LoopInterval = 100, int Timeout = DEFAULT_WAIT_BUSY_TIMEOUT, IEnumerable<UnitID> PositionRefreshingList = null)
+        // ReSharper disable once MemberCanBePrivate.Global
+        public SystemLastError WaitBySystemState(int loopInterval = 100, int timeout = DEFAULT_WAIT_BUSY_TIMEOUT,
+            IEnumerable<UnitID> positionRefreshingList = null)
         {
-            Stopwatch sw = new Stopwatch();
-            SystemState state = null;
-
+            var sw = new Stopwatch();
             Thread.Sleep(50);
 
             while (true)
             {
                 sw.Restart();
 
-                state = GetSystemState();
+                var state = GetSystemState();
                 if (state.IsSystemBusy == false)
                     break;
 
                 sw.Stop();
-                if (sw.Elapsed.TotalMilliseconds > Timeout)
+                if (sw.Elapsed.TotalMilliseconds > timeout)
                     return new SystemLastError(UnitID.INVALID, Errors.ERR_TIMEOUT);
 
                 //! adding delay here to ensure to get the latest state(position).
-                Thread.Sleep(LoopInterval);
+                Thread.Sleep(loopInterval);
 
                 //! update the real-time abs-position if the list is not null.
                 //! 2020/2//29 
                 // An issue is found that the latest abs-position is not synced after 
                 // the blind-search done since there are NO processes to read the position
                 // back.
-                if (PositionRefreshingList != null)
+                if(positionRefreshingList == null)
+                    throw new ArgumentNullException(nameof(positionRefreshingList));
+                
+                positionRefreshingList.ToList().ForEach(unitId =>
                 {
-                    PositionRefreshingList.ToList().ForEach(unitId =>
+                    try
                     {
+                        var unitState = GetUnitState(unitId);
+                        _unitStateChangedProgress.Report(unitState);
+                    }
+                    catch(Exception ex)
+                    {
+                        throw new Exception($"unable to read the unit position.", ex);
+                    }
+                    finally
+                    {
+                        Thread.Sleep(10);
+                    }
 
-                        try
-                        {
-                            var unitState = GetUnitState(unitId);
-                            unitStateChangedProgress.Report(unitState);
-                        }
-                        catch(Exception ex)
-                        {
-                            throw new Exception($"unable to read the unit position.", ex);
-                        }
-                        finally
-                        {
-                            Thread.Sleep(10);
-                        }
-
-                    });
-                }
+                });
 
             }
 
@@ -1246,23 +1141,22 @@ namespace M12
 
 
         #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
+        private bool _disposedValue; // To detect redundant calls
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (_disposedValue) return;
+            
+            if (disposing)
             {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects).
-                    Close();
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                disposedValue = true;
+                // TODO: dispose managed state (managed objects).
+                Close();
             }
+
+            // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+            // TODO: set large fields to null.
+
+            _disposedValue = true;
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
@@ -1284,8 +1178,6 @@ namespace M12
         #endregion
 
         #region Events
-
-
 
         #endregion
     }
