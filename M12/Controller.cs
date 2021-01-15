@@ -578,7 +578,7 @@ namespace M12
             if(GlobalDefinition.NumberOfSetBits((int)analogCapture) != 1) 
                 throw new ArgumentException("only 1 analog capture channel can be activated.", nameof(analogCapture));
 
-            if(GlobalDefinition.NumberOfSetBits((int)analogCapture2) != 1)
+            if((analogCapture2 != 0) && GlobalDefinition.NumberOfSetBits((int)analogCapture2) != 1)
                 throw new ArgumentException("only 1 analog capture channel can be activated.", nameof(analogCapture2));
 
             var dir = range < 0 ? -1 : 1;
@@ -642,7 +642,7 @@ namespace M12
             #endregion
             
             // ran too fast, some ADC value missed.
-            var pointsDesired = (int) Math.Ceiling((double) range / interval);
+            var pointsDesired = Math.Abs((int) Math.Ceiling((double) range / interval));
             if (pointsDesired != scanResults.Count)
                 throw new ADCSamplingPointMissException(pointsDesired,  scanResults.Count);
         }
