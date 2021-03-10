@@ -32,7 +32,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="80"/>
             <RowDefinition Height="60"/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="110"/>
             <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -78,16 +78,53 @@
         </GroupBox>
 
         <GroupBox Grid.Row="2" Header="Unit Settings">
-            <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="7" VerticalAlignment="Center">
-                <ComboBox ItemsSource="{Binding Source={StaticResource UnitWorkMode}}" SelectedValue="{Binding UnitMode}"/>
-                <ComboBox ItemsSource="{Binding Source={StaticResource PulsePin}}" SelectedValue="{Binding PulsePin}"/>
-                <ComboBox ItemsSource="{Binding Source={StaticResource LSActive}}" SelectedValue="{Binding LSActiveLevel}"/>
-                <ToggleButton Content="Flip Dir" IsChecked="{Binding FlipMoveDir}"/>
-                <ToggleButton Content="Flip LS" IsChecked="{Binding FlipLS}"/>
-                <ToggleButton Content="Flip IO AL" IsChecked="{Binding IsFlipIOActiveLevel}"/>
-                <ToggleButton Content="Detect Timming" IsChecked="{Binding IsDetectTimmingSignal}"/>
-                <Button Content="Save Settings" Command="{Binding ChangeUnitSettingsCommand}"/>
-            </StackPanel>
+            <Grid >
+                <Grid.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="HorizontalAlignment" Value="Right"></Setter>
+                        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                        <Setter Property="Margin" Value="0,0,5,0"></Setter>
+                    </Style>
+                    <Style TargetType="CheckBox">
+                        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="脉冲模式"></TextBlock>
+                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Source={StaticResource UnitWorkMode}}" SelectedValue="{Binding UnitMode}"/>
+                
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="脉冲输出"></TextBlock>
+                <ComboBox Grid.Row="0" Grid.Column="3" ItemsSource="{Binding Source={StaticResource PulsePin}}" SelectedValue="{Binding PulsePin}"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="4" Text="限位开关常开电平"></TextBlock>
+                <ComboBox Grid.Row="0" Grid.Column="5" ItemsSource="{Binding Source={StaticResource LSActive}}" SelectedValue="{Binding LSActiveLevel}"/>
+
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                            <Setter Property="Margin" Value="0,0,10,0"></Setter>
+                        </Style>
+                    </StackPanel.Resources>
+                    <CheckBox Content="翻转方向" IsChecked="{Binding FlipMoveDir}"/>
+                    <CheckBox Content="翻转位置传感器" IsChecked="{Binding FlipLS}"/>
+                    <CheckBox Content="翻转控制脚有效电平" IsChecked="{Binding IsFlipIOActiveLevel}"/>
+                    <CheckBox Content="使能Timing" IsChecked="{Binding IsDetectTimmingSignal}"/>
+                </StackPanel>
+                <Button Grid.Row="4" Content="保存设置" Command="{Binding ChangeUnitSettingsCommand}"/>
+            </Grid>
         </GroupBox>
 
         <GroupBox Grid.Row="3" Header="Acceleration">

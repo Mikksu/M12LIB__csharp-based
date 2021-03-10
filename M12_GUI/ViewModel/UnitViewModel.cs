@@ -4,9 +4,7 @@ using GalaSoft.MvvmLight.Messaging;
 using M12.Base;
 using M12.Definitions;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
-using static M12.Base.UnitSettings;
 
 namespace M12_GUI.ViewModel
 {
@@ -14,15 +12,15 @@ namespace M12_GUI.ViewModel
     {
         #region Variables
 
-        M12.Controller _controller;
+        private M12.Controller _controller;
 
-        string _caption = "";
-        UnitID _id = UnitID.INVALID;
-        int _absPosition = 0;
-        int _stepsToMove = 0;
-        int _speed = 100;
+        private string _caption = "";
+        private UnitID _id = UnitID.INVALID;
+        private int _absPosition = 0;
+        private int _stepsToMove = 0;
+        private int _speed = 100, _homeSpeedLow = 20, _homeSpeedHigh = 100;
 
-        Version _version;
+        private Version _version;
 
         #endregion
 
@@ -48,8 +46,7 @@ namespace M12_GUI.ViewModel
 
         #region Unit Status Properties
 
-        
-        bool _isInited = false;
+        private bool _isInited = false;
         public bool IsInited
         {
             get => _isInited;
@@ -60,7 +57,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        bool _isHomed = false;
+        private bool _isHomed = false;
         public bool IsHomed
         {
             get => _isHomed;
@@ -71,7 +68,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        bool _isBusy = false;
+        private bool _isBusy = false;
         public bool IsBusy
         {
             get => _isBusy;
@@ -82,7 +79,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        Errors _unitErr = Errors.ERR_NONE;
+        private Errors _unitErr = Errors.ERR_NONE;
         public Errors UnitError
         {
             get => _unitErr;
@@ -97,7 +94,7 @@ namespace M12_GUI.ViewModel
 
         #region Unit Settings Properties
 
-        ModeEnum _unitMode = ModeEnum.TwoPulse;
+        private ModeEnum _unitMode = ModeEnum.TwoPulse;
         public ModeEnum UnitMode
         {
             get => _unitMode;
@@ -108,7 +105,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        PulsePinEnum _plsPin = PulsePinEnum.CCW;
+        private PulsePinEnum _plsPin = PulsePinEnum.CCW;
         public PulsePinEnum PulsePin
         {
             get => _plsPin;
@@ -119,7 +116,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        bool _flipDir = false;
+        private bool _flipDir = false;
         public bool FlipMoveDir
         {
             get => _flipDir;
@@ -130,7 +127,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        bool _flipLS = false;
+        private bool _flipLS = false;
         public bool FlipLS
         {
             get => _flipLS;
@@ -141,7 +138,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        bool _enTimming = false;
+        private bool _enTimming = false;
         public bool IsDetectTimmingSignal
         {
             get => _enTimming;
@@ -152,7 +149,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        ActiveLevelEnum _activeOfLS = ActiveLevelEnum.Low;
+        private ActiveLevelEnum _activeOfLS = ActiveLevelEnum.Low;
         public ActiveLevelEnum LSActiveLevel
         {
             get => _activeOfLS;
@@ -163,7 +160,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        bool _isFlipIOActiveLevel = false;
+        private bool _isFlipIOActiveLevel = false;
         public bool IsFlipIOActiveLevel
         {
             get => _isFlipIOActiveLevel;
@@ -174,7 +171,7 @@ namespace M12_GUI.ViewModel
             }
         }
 
-        int _acc = 500;
+        private int _acc = 500;
         public int Acceleration
         {
             get => _acc;
@@ -238,6 +235,26 @@ namespace M12_GUI.ViewModel
             }
         }
 
+        public int HomeSpeedLow
+        {
+            get => _homeSpeedLow;
+            set
+            {
+                _homeSpeedLow = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public int HomeSpeedHigh
+        {
+            get => _homeSpeedHigh;
+            set
+            {
+                _homeSpeedHigh = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public Version FWversion
         {
             get => _version;
@@ -284,7 +301,7 @@ namespace M12_GUI.ViewModel
                     {
                         await Task.Run(() =>
                         {
-                            M12.Home(this.ID, 5, 5, 2000);
+                            M12.Home(this.ID, 20, 100, 2000);
                         });
                     }
                     catch (Exception ex)
