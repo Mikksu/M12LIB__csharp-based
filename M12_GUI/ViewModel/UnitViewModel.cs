@@ -301,7 +301,7 @@ namespace M12_GUI.ViewModel
                     {
                         await Task.Run(() =>
                         {
-                            M12.Home(this.ID, 20, 100, 2000);
+                            M12.Home(this.ID, (byte)HomeSpeedLow, (byte)HomeSpeedHigh, 2000);
                         });
                     }
                     catch (Exception ex)
