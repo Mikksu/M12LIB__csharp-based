@@ -15,14 +15,14 @@ namespace M12.Base
             Integrated = new DigitalIOStatus[8];
 
             BitArray bits = new BitArray(Data);
-            this.DIN1 = bits.Get(0) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
-            this.DIN2 = bits.Get(1) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
-            this.DIN3 = bits.Get(2) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
-            this.DIN4 = bits.Get(3) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
-            this.DIN5 = bits.Get(4) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
-            this.DIN6 = bits.Get(5) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
-            this.DIN7 = bits.Get(6) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
-            this.DIN8 = bits.Get(7) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
+            DIN1 = bits.Get(0) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
+            DIN2 = bits.Get(1) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
+            DIN3 = bits.Get(2) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
+            DIN4 = bits.Get(3) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
+            DIN5 = bits.Get(4) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
+            DIN6 = bits.Get(5) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
+            DIN7 = bits.Get(6) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
+            DIN8 = bits.Get(7) == false ? DigitalIOStatus.OFF : DigitalIOStatus.ON;
 
             Integrated[0] = DIN1;
             Integrated[1] = DIN2;

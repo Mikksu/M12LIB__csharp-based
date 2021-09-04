@@ -9,9 +9,9 @@ namespace M12.Commands.Motion
         public CommandHome(UnitID UnitID, ushort Acc, byte LowSpeed, byte HighSpeed)
         {
             this.UnitID = UnitID;
-            this.Acceleration = Acc;
-            this.SpeedLow = LowSpeed;
-            this.SpeedHigh = HighSpeed;
+            Acceleration = Acc;
+            SpeedLow = LowSpeed;
+            SpeedHigh = HighSpeed;
         }
 
         #region Properties

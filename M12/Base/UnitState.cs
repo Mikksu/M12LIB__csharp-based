@@ -7,22 +7,22 @@ namespace M12.Base
 {
     public class UnitState
     {
-        public UnitState(byte[] Data)
+        public UnitState(byte[] data)
         {
-            using (MemoryStream stream = new MemoryStream(Data))
+            using (var stream = new MemoryStream(data))
             {
-                using (BinaryReader reader = new BinaryReader(stream))
+                using (var reader = new BinaryReader(stream))
                 {
-                    this.UnitID = reader.ReadByte();
+                    UnitID = reader.ReadByte();
 
-                    BitArray bits = new BitArray(reader.ReadBytes(1));
-                    this.IsInitialized = bits[0];
-                    this.IsHomed = bits[1];
-                    this.IsBusy = bits[2];
+                    var bits = new BitArray(reader.ReadBytes(1));
+                    IsInitialized = bits[0];
+                    IsHomed = bits[1];
+                    IsBusy = bits[2];
 
-                    this.Error = (Errors)reader.ReadByte();
+                    Error = (Errors)reader.ReadByte();
 
-                    this.AbsPosition = reader.ReadInt32();
+                    AbsPosition = reader.ReadInt32();
                 }
             }
         }

@@ -6,9 +6,9 @@ namespace M12.Commands.General
     [CommandIndex(CommandDef.HOST_CMD_GET_MCSU_STA)]
     public class CommandGetUnitState : CommandBase
     {
-        public CommandGetUnitState(UnitID UnitID)
+        public CommandGetUnitState(UnitID unitId)
         {
-            this.UnitID = UnitID;
+            UnitID = unitId;
         }
 
         #region Properties
@@ -21,7 +21,7 @@ namespace M12.Commands.General
 
         internal override byte[] GeneratePayload()
         {
-            return new byte[] { (byte)this.UnitID };
+            return new byte[] { (byte)UnitID };
         }
 
         #endregion

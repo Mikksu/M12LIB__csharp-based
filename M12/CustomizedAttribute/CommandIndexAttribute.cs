@@ -6,7 +6,7 @@ namespace M12.CustomizedAttribute
     [AttributeUsage(AttributeTargets.Class)]
     public class CommandIndexAttribute : Attribute
     {
-        public CommandIndexAttribute(Commands.CommandDef ID)
+        public CommandIndexAttribute(CommandDef ID)
         {
             CommandID = ID;
         }

@@ -9,7 +9,7 @@ namespace M12.Commands.General
     {
         public CommandSetCSSThreshold(CSSCH Channel, ushort LowThreshold, ushort HighThreshold)
         {
-            this.CSSChannel = Channel;
+            CSSChannel = Channel;
             this.LowThreshold = LowThreshold;
             this.HighThreshold = HighThreshold;
         }

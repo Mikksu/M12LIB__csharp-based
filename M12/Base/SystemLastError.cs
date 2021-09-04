@@ -16,8 +16,8 @@ namespace M12.Base
             {
                 using (BinaryReader reader = new BinaryReader(stream))
                 {
-                    this.UnitID = (UnitID)reader.ReadByte();
-                    this.Error = (Errors)reader.ReadByte();
+                    UnitID = (UnitID)reader.ReadByte();
+                    Error = (Errors)reader.ReadByte();
                 }
             }
         }

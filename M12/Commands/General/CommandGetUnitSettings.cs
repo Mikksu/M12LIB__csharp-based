@@ -22,7 +22,7 @@ namespace M12.Commands.General
 
         internal override byte[] GeneratePayload()
         {
-            return new byte[] { (byte)this.UnitID };
+            return new byte[] { (byte)UnitID };
         }
 
         #endregion

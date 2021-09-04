@@ -11,7 +11,7 @@ namespace M12.Base
     {
         public UnitInformation(byte[] Data)
         {
-            this.FirmwareVersion = VersionConverter.FromByteArray(Data);
+            FirmwareVersion = VersionConverter.FromByteArray(Data);
         }
 
         public Version FirmwareVersion { get; private set; }

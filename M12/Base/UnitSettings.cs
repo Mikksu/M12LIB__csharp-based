@@ -13,18 +13,18 @@ namespace M12.Base
             {
                 using (BinaryReader reader = new BinaryReader(stream))
                 {
-                    this.UnitID = reader.ReadByte();
+                    UnitID = reader.ReadByte();
 
                     BitArray bits = new BitArray(reader.ReadBytes(1));
-                    this.Mode = bits[0] == false ? ModeEnum.OnePulse : ModeEnum.TwoPulse;
-                    this.PulsePin = bits[1] == false ? PulsePinEnum.CW : PulsePinEnum.CCW;
-                    this.IsFlipDIR = bits[2];
-                    this.IsFlipLimitSensor = bits[3];
-                    this.IsDetectTimming = bits[4];
-                    this.LimitSensorActiveLevel = bits[5] == false ? ActiveLevelEnum.High : ActiveLevelEnum.Low;
-                    this.IsFlipIOActiveLevel = bits[6];
+                    Mode = bits[0] == false ? ModeEnum.OnePulse : ModeEnum.TwoPulse;
+                    PulsePin = bits[1] == false ? PulsePinEnum.CW : PulsePinEnum.CCW;
+                    IsFlipDIR = bits[2];
+                    IsFlipLimitSensor = bits[3];
+                    IsDetectTimming = bits[4];
+                    LimitSensorActiveLevel = bits[5] == false ? ActiveLevelEnum.High : ActiveLevelEnum.Low;
+                    IsFlipIOActiveLevel = bits[6];
 
-                    this.GeneralAcceleration = reader.ReadUInt16();
+                    GeneralAcceleration = reader.ReadUInt16();
                 }
             }
         }
@@ -38,7 +38,7 @@ namespace M12.Base
             this.IsFlipDIR = IsFlipDIR;
             this.IsFlipLimitSensor = IsFlipLimitSensor;
             this.IsDetectTimming = IsDetectTimming;
-            this.LimitSensorActiveLevel = LSActiveLevel;
+            LimitSensorActiveLevel = LSActiveLevel;
             this.IsFlipIOActiveLevel = IsFlipIOActiveLevel;
         }
 
@@ -59,13 +59,13 @@ namespace M12.Base
         {
             byte ret = 0;
 
-            ret |= (byte)((this.Mode == ModeEnum.OnePulse ? 0 : 1) << 0);
-            ret |= (byte)((this.PulsePin == PulsePinEnum.CW ? 0 : 1) << 1);
-            ret |= (byte)((this.IsFlipDIR == false ? 0 : 1) << 2);
-            ret |= (byte)((this.IsFlipLimitSensor == false ? 0 : 1) << 3);
-            ret |= (byte)((this.IsDetectTimming == false ? 0 : 1) << 4);
-            ret |= (byte)((this.LimitSensorActiveLevel == ActiveLevelEnum.High ? 0 : 1) << 5);
-            ret |= (byte)((this.IsFlipIOActiveLevel == false ? 0 : 1) << 6);
+            ret |= (byte)((Mode == ModeEnum.OnePulse ? 0 : 1) << 0);
+            ret |= (byte)((PulsePin == PulsePinEnum.CW ? 0 : 1) << 1);
+            ret |= (byte)((IsFlipDIR == false ? 0 : 1) << 2);
+            ret |= (byte)((IsFlipLimitSensor == false ? 0 : 1) << 3);
+            ret |= (byte)((IsDetectTimming == false ? 0 : 1) << 4);
+            ret |= (byte)((LimitSensorActiveLevel == ActiveLevelEnum.High ? 0 : 1) << 5);
+            ret |= (byte)((IsFlipIOActiveLevel == false ? 0 : 1) << 6);
 
             return new byte[] { ret };
         }

@@ -11,12 +11,12 @@ namespace M12.Base
             {
                 using (BinaryReader reader = new BinaryReader(stream))
                 {
-                    this.Sequence = reader.ReadUInt16();
-                    this.Length = (ushort)(reader.ReadUInt16() / 2);
+                    Sequence = reader.ReadUInt16();
+                    Length = (ushort)(reader.ReadUInt16() / 2);
 
-                    if (this.Length > 0)
+                    if (Length > 0)
                     {
-                        this.Values = new List<short>();
+                        Values = new List<short>();
 
                         for (int i = 0; i < Length; i++)
                         {

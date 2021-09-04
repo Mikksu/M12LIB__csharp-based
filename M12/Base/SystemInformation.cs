@@ -15,8 +15,8 @@ namespace M12.Base
             {
                 using (BinaryReader reader = new BinaryReader(stream))
                 {
-                    this.MaxUnit = (int)reader.ReadByte();
-                    this.FirmwareVersion = VersionConverter.FromByteArray(reader.ReadBytes(4));
+                    MaxUnit = (int)reader.ReadByte();
+                    FirmwareVersion = VersionConverter.FromByteArray(reader.ReadBytes(4));
                     for(int i = 0; i < MaxUnit; i++)
                     {
                         UnitFwInfo.Add(new UnitInformation(reader.ReadBytes(4)));
@@ -26,7 +26,9 @@ namespace M12.Base
         }
 
         public int MaxUnit { get; private set; }
+
         public Version FirmwareVersion { get; private set; }
+
         public List<UnitInformation> UnitFwInfo { get; set; }
     }
 }

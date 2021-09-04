@@ -4,9 +4,9 @@
     {
         public Point3D ()
         {
-            this.X = double.NaN;
-            this.Y = double.NaN;
-            this.Z = double.NaN;
+            X = double.NaN;
+            Y = double.NaN;
+            Z = double.NaN;
         }
 
         public Point3D(double X, double Y, double Z)

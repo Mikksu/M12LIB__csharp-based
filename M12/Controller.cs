@@ -159,6 +159,9 @@ namespace M12
         {
             RxPackage package;
 
+            if (unitId == UnitID.INVALID || unitId == UnitID.ALL)
+                throw new ArgumentException("unsupported id.");
+
             lock (_lockController)
             {
                 Send(new CommandGetUnitState(unitId));
@@ -955,7 +958,7 @@ namespace M12
 
         public void Close()
         {
-            if (this._port != null && this._port.IsOpen)
+            if (_port != null && _port.IsOpen)
                 _port.Close();
         }
 

@@ -30,7 +30,7 @@ namespace STM32F407
         /// </summary>
         public void Reset()
         {
-            this.CRC = INIT_VAL;
+            CRC = INIT_VAL;
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace STM32F407
                 calculate(Buffer[i]);
             }
 
-            return this.CRC;
+            return CRC;
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace STM32F407
         private UInt32 calculate(UInt32 data)
         {
             int bindex = 0;
-            UInt32 crc = data ^ this.CRC;
+            UInt32 crc = data ^ CRC;
 
             while (bindex < 32)
             {
@@ -106,7 +106,7 @@ namespace STM32F407
                 bindex++;
             }
 
-            this.CRC = crc;
+            CRC = crc;
 
             return crc;
         }

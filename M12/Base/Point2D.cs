@@ -4,8 +4,8 @@
     {
         public Point2D()
         {
-            this.X = double.NaN;
-            this.Y = double.NaN;
+            X = double.NaN;
+            Y = double.NaN;
         }
 
         public Point2D(double X, double Y)

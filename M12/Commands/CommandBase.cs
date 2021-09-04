@@ -92,7 +92,7 @@ namespace M12.Commands
                     wr.Write(FrameID);
 
                     // write command (uint8).
-                    wr.Write((byte)this.Command);
+                    wr.Write((byte)Command);
 
                     // write payload.
                     if (payload.Length > 0)

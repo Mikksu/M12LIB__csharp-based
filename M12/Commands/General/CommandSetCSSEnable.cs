@@ -9,7 +9,7 @@ namespace M12.Commands.General
     {
         public CommandSetCSSEnable(CSSCH Channel, bool IsEnabled)
         {
-            this.CSSChannel = Channel;
+            CSSChannel = Channel;
             this.IsEnabled = IsEnabled;
         }
 

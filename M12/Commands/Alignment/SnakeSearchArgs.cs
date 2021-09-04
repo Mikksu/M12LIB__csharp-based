@@ -12,12 +12,12 @@ namespace M12.Commands.Alignment
         public SnakeSearchArgs(UnitID HAxis, int HRange, UnitID VAxis,
             int VRange, uint Gap, ushort Interval, byte Speed)
         {
-            this.HorizontalAxis = HAxis;
-            this.HorizontalRange = HRange;
-            this.VerticalAxis = VAxis;
-            this.VerticalRange = VRange;
+            HorizontalAxis = HAxis;
+            HorizontalRange = HRange;
+            VerticalAxis = VAxis;
+            VerticalRange = VRange;
             this.Gap = Gap;
-            this.SamplingInterval = Interval;
+            SamplingInterval = Interval;
             this.Speed = Speed;
         }
 

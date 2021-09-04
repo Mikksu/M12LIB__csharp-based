@@ -46,7 +46,7 @@ namespace M12.Packages
 
         public bool IsPassCRC { get; private set; }
 
-        public M12.Commands.CommandDef Command { get; private set; }
+        public Commands.CommandDef Command { get; private set; }
 
         public byte API_Identifier { get; private set; }
 
@@ -119,20 +119,20 @@ namespace M12.Packages
                                     reader.ReadUInt16();
 
                                     // API Identifier
-                                    this.API_Identifier = reader.ReadByte();
+                                    API_Identifier = reader.ReadByte();
 
                                     // Frame ID
-                                    this.FrameID = reader.ReadUInt16();
+                                    FrameID = reader.ReadUInt16();
 
                                     // Command
-                                    this.Command = (Commands.CommandDef)reader.ReadByte();
+                                    Command = (Commands.CommandDef)reader.ReadByte();
 
                                     // payload
-                                    this.Payload = reader.ReadBytes(LengthExpected - SIZE_API_ID - SIZE_FRAME_ID - SIZE_COMMAND);
+                                    Payload = reader.ReadBytes(LengthExpected - SIZE_API_ID - SIZE_FRAME_ID - SIZE_COMMAND);
                                 }
 
                                 IsPassCRC = true;
-                                this.CRC = crc_expected;
+                                CRC = crc_expected;
 
                                 OnPackageReceived?.Invoke(this, Payload);
                                 
