@@ -4,8 +4,8 @@ namespace M12.Definitions
 {
     public enum UnitID
     { 
-        ALL,
-        U1,
+        ALL = 0,
+        U1 = 1,
         U2,
         U3,
         U4,

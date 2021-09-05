@@ -13,7 +13,8 @@ namespace M12.Base
             {
                 using (var reader = new BinaryReader(stream))
                 {
-                    UnitID = reader.ReadByte();
+                    var id = reader.ReadByte();
+                    Id = (UnitID)id;
 
                     var bits = new BitArray(reader.ReadBytes(1));
                     IsInitialized = bits[0];
@@ -27,9 +28,12 @@ namespace M12.Base
             }
         }
 
-        public int UnitID { get; private set; }
+        public UnitID Id { get; private set; }
+
         public bool IsInitialized { get; private set; }
+
         public bool IsHomed { get; private set; }
+
         public bool IsBusy { get; private set; }
 
         public int AbsPosition { get; private set; }
@@ -38,7 +42,7 @@ namespace M12.Base
 
         public override string ToString()
         {
-            return $"Unit ID {UnitID}, " +
+            return $"Unit ID {Id}, " +
                 $"{(IsInitialized ? "Initialized" : "Not Initialized")}, " +
                 $"{(IsHomed ? "Homed" : "Not Homed")}, " +
                 $"{(IsBusy ? "Busy" : "Idle")}, " +
