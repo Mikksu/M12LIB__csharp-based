@@ -323,6 +323,27 @@ namespace M12.Tests
         }
 
         [Test()]
+        public void FastMoveTest()
+        {
+            UnitState stat;
+
+            using (var controller = new Controller(PORT_NAME, BAUDRATE))
+            {
+                controller.Open();
+
+
+                // Home
+                controller.Home(TestUnit1, 5, 50);
+
+                controller.Move(TestUnit1, 10000, 100);
+
+                controller.FastMove(TestUnit1, 0, 100, 2);
+
+                controller.Close();
+            }
+        }
+
+        [Test()]
         public void ReadADCTest()
         {
             using (Controller controller = new Controller(PORT_NAME, BAUDRATE))
@@ -381,18 +402,17 @@ namespace M12.Tests
             {
                 controller.Open();
 
-                controller.Home(TestUnit1);
+                controller.Home(TestUnit1, 5, 50);
+                controller.Move(TestUnit1, 10000, 100);
 
-                controller.Move(TestUnit1, 1000, 20);
+                controller.Home(TestUnit2, 5, 50);
 
-                controller.Home(TestUnit2);
-
-                controller.Move(TestUnit2, 1000, 20);
+                controller.Move(TestUnit2, 10000, 100);
 
                 controller.SetOsr(ADC_OSR.AD7606_OSR_0);
 
-                BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 100, 20, 20, 50);
-                BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 100, 20, 20, 50);
+                BlindSearchArgs horiArgs = new BlindSearchArgs(TestUnit1, 400, 100, 100, 20);
+                BlindSearchArgs vertArgs = new BlindSearchArgs(TestUnit2, 400, 100, 100, 20);
 
                 Exception exCaptured = null;
                 List<Point3D> Results = null;
@@ -403,7 +423,7 @@ namespace M12.Tests
 
                     try
                     {
-                        controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH2, out Results);
+                        controller.StartBlindSearch(horiArgs, vertArgs, ADCChannels.CH1, out Results);
                     }
                     catch (Exception ex)
                     {
