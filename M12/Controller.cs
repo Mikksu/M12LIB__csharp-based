@@ -998,24 +998,29 @@ namespace M12
                     throw new OperationCanceledException("operation has cancelled.");
 
                 // if one or more bytes are received, push to RxPackageParser.
-                var len = _port.BytesToRead;
-                if (len <= 0) continue;
-                
-                var data = new byte[len];
-                _port.Read(data, 0, len);
 
-                foreach (var t in data)
+                if (_port.BytesToRead > 0)
                 {
-                    package.AddData(t);
+                    var len = _port.BytesToRead;
+                    var data = new byte[len];
+
+                    _port.Read(data, 0, len);
+
+                    foreach (var t in data)
+                    {
+                        package.AddData(t);
+
+                        if (package.IsPackageFound)
+                        {
+                            break;
+                        }
+                    }
 
                     if (package.IsPackageFound)
-                    {
                         break;
-                    }
                 }
 
-                if (package.IsPackageFound)
-                    break;
+                Thread.Sleep(5);
             }
 
             if (package.IsPassCRC == false)
